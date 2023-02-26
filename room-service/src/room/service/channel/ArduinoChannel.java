@@ -1,10 +1,13 @@
-package room.service.arduino;
+package room.service.channel;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import jssc.*;
+import jssc.SerialPort;
+import jssc.SerialPortEvent;
+import jssc.SerialPortEventListener;
+import jssc.SerialPortException;
 
 public class ArduinoChannel implements CommChannel, SerialPortEventListener {
 

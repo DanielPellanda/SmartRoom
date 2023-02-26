@@ -1,4 +1,4 @@
-package room.service.arduino;
+package room.service.channel;
 
 /**
  * Simple interface for an async msg communication channel
