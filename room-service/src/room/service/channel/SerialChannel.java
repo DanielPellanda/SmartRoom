@@ -9,14 +9,14 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
-public class ArduinoChannel implements CommChannel, SerialPortEventListener {
+public class SerialChannel implements SerialPortEventListener {
 
 	private static final long SEND_INTERVAL = 1000;
 	
 	private final List<String> sendQueue = new ArrayList<>();
 	private final SerialPort serialPort;
 	
-	public ArduinoChannel(String portName) {
+	public SerialChannel(String portName) {
 		serialPort = new SerialPort(portName);
 	}
 	
@@ -33,9 +33,8 @@ public class ArduinoChannel implements CommChannel, SerialPortEventListener {
 		                                  SerialPort.FLOWCONTROL_RTSCTS_OUT);
 
 		    serialPort.addEventListener(this, SerialPort.MASK_RXCHAR);
-		}
-		catch (SerialPortException ex) {
-		    System.out.println("There are an error on writing string to port т: " + ex);
+		} catch (SerialPortException ex) {
+		    System.out.println("A SerialPortException occured, details: \n" + ex.getMessage());
 		}
 		
 		new SerialSender(serialPort).start();
