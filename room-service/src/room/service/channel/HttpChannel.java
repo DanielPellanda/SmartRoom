@@ -22,24 +22,24 @@ public class HttpChannel {
 	private boolean setupComplete = false;
 	private final String servername;
 	
-	private final InetSocketAddress fullAddress;
+	private final InetSocketAddress socketAddress;
 	private HttpServer server;
 	
 	public HttpChannel (final String servername, final InetSocketAddress fullAddress) {
-		this.fullAddress = fullAddress;
+		this.socketAddress = fullAddress;
 		this.servername = servername;
 	}
 	
 	public void setup() {
 		try {
-			server = HttpServer.create(fullAddress, 0);
+			server = HttpServer.create(socketAddress, 0);
 			server.createContext("/", new BasicHandler(p -> "<h1>Connection with the server established</h1>", HttpMethod.NONE));
 			server.createContext("/head", new BasicHandler(p -> "", HttpMethod.HEAD));
 			server.setExecutor(null);
 			setupComplete = true;
 			
 		} catch (IOException e) {
-			System.out.println("An IOException occured, details: \n" + e.getMessage());
+			System.err.println(e.toString());
 		}
 	}
 	
@@ -47,18 +47,24 @@ public class HttpChannel {
 		if (setupComplete) {
 			server.start();
 			hasStarted = true;
-			System.out.println(servername + " HTTP Server starting on " + fullAddress.toString());
+			System.out.println(servername + " HTTP Server starting on " + getFullServerAddress());
 		}
 	}
 
 	public void close() {
-		server.stop(1);
+		if (setupComplete) {
+			server.stop(1);
+		}
 	}
 	
 	public void addHandler(final String Uri, final Function<Optional<Map<String, String>>, String> response, final HttpMethod method) {
 		if (!hasStarted) {
 			server.createContext(Uri, new BasicHandler(response, method));
 		}
+	}
+	
+	public String getFullServerAddress() {
+		return socketAddress.getAddress().getHostAddress() + ":" + socketAddress.getPort();
 	}
 	
 	public class BasicHandler implements HttpHandler {

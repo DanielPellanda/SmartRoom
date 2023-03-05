@@ -1,8 +1,6 @@
 package room.service.channel;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.io.UnsupportedEncodingException;
 
 import jssc.SerialPort;
 import jssc.SerialPortEvent;
@@ -11,10 +9,9 @@ import jssc.SerialPortException;
 
 public class SerialChannel implements SerialPortEventListener {
 
-	private static final long SEND_INTERVAL = 1000;
-	
-	private final List<String> sendQueue = new ArrayList<>();
 	private final SerialPort serialPort;
+	private boolean hasStarted = false;
+	private String lastReceivedData = "";
 	
 	public SerialChannel(String portName) {
 		serialPort = new SerialPort(portName);
@@ -33,11 +30,10 @@ public class SerialChannel implements SerialPortEventListener {
 		                                  SerialPort.FLOWCONTROL_RTSCTS_OUT);
 
 		    serialPort.addEventListener(this, SerialPort.MASK_RXCHAR);
+		    hasStarted = true;
 		} catch (SerialPortException ex) {
-		    System.out.println("A SerialPortException occured, details: \n" + ex.getMessage());
+			System.err.println(ex.toString());
 		}
-		
-		new SerialSender(serialPort).start();
 	}
 
 	/**
@@ -45,18 +41,30 @@ public class SerialChannel implements SerialPortEventListener {
 	 * This will prevent port locking on platforms like Linux.
 	 */
 	public synchronized void close() {
-		try {
-			if (serialPort != null) {
-				serialPort.removeEventListener();
-				serialPort.closePort();
+		if (hasStarted) {
+			try {
+				if (serialPort != null) {
+					serialPort.removeEventListener();
+					serialPort.closePort();
+				}
+			} catch (Exception ex) {
+				System.err.println(ex.getMessage());
 			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
 		}
 	}
 
 	public synchronized void send(String msg) {
-		sendQueue.add(msg);
+		if (hasStarted) {
+			try {
+				serialPort.writeString(msg, "UTF-8");
+			} catch (SerialPortException | UnsupportedEncodingException e) {
+				System.err.println(e.getMessage());
+			}
+		}
+	}
+	
+	public synchronized String read() {
+		return lastReceivedData;
 	}
 	
 	/**
@@ -64,42 +72,14 @@ public class SerialChannel implements SerialPortEventListener {
 	 */
 	@Override
 	public synchronized void serialEvent(SerialPortEvent event) {
-        if(event.isRXCHAR() && event.getEventValue() > 0) {
+        if(event.isRXCHAR() && event.getEventValue() > 0 && hasStarted) {
             try {
-                String receivedData = serialPort.readString(event.getEventValue());
-                System.out.print("Arduino :: " + receivedData);
+                lastReceivedData = serialPort.readString(event.getEventValue());
+                System.out.print("Arduino:: " + lastReceivedData);
             }
             catch (SerialPortException ex) {
-                System.out.println("Error in receiving string from COM-port: " + ex);
+                System.err.println("Error in receiving string from COM-port: \n\t" + ex.toString());
             }
         }
-	}
-
-	class SerialSender extends Thread {
-		private SerialPort port;
-
-		public SerialSender(SerialPort port){
-			this.port = port;
-		}
-		
-		private synchronized void sendAll() throws Exception{
-			Iterator<String> it = sendQueue.iterator();
-			while(it.hasNext()) {
-				port.writeString(it.next(), "UTF-8");
-			}
-			sendQueue.clear();
-		}
-		
-		@Override
-		public void run(){
-			while (true){
-				try {
-					sendAll();
-					Thread.sleep(SEND_INTERVAL);
-				} catch (Exception ex){
-					ex.printStackTrace();
-				}
-			}
-		}
 	}
 }
