@@ -1,6 +1,7 @@
 #ifndef __LED__
 #define __LED__
 
+#include "Arduino.h"
 typedef enum {ON, OFF} LedState;
 
 class Led {
