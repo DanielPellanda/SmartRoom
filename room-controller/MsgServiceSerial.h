@@ -1,20 +1,8 @@
-#ifndef __SERIALCOMMUNICATION__
-#define __SERIALCOMMUNICATION__
+#ifndef __MSG_SERVICE_SERIAL__
+#define __MSG_SERVICE_SERIAL__
 
 #include "Arduino.h"
-
-class Msg {
-  String content;
-
-public:
-  Msg(String content){
-    this->content = content;
-  }
-  
-  String getContent(){
-    return content;
-  }
-};
+#include "Msg.h"
 
 class Pattern {
 public:

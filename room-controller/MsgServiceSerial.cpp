@@ -1,5 +1,4 @@
-#include "Arduino.h"
-#include "SerialCommunication.h"
+#include "MsgServiceSerial.h"
 
 String content;
 

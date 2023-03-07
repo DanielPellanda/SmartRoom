@@ -6,7 +6,6 @@ CommunicationTask::CommunicationTask (RoomState* currState){
 
 void CommunicationTask::init(int period) {
     Task::init(period);
-    //MsgService.init();
 }
 
 void CommunicationTask::tick() {
