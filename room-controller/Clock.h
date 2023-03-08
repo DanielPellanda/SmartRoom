@@ -2,20 +2,27 @@
 #define __CLOCK__
 
 #define HRS_FORMAT 24
+#define MINUTES 60
+#define SKIP 5
 
 class Clock {
-  int timeBand;
+  int hours;
+  int minutes;
     
   public:
     Clock(int time);
     /**
-    * returns time in hours
+    * get the clock's hour
     */
-    int getTime();
+    int getHour();
     /**
-    * sets the clock on the next time band and returns the new value
+    * get the clock's minute
     */
-    int nextTimeBand();
+    int getMinute();
+    /**
+    * puts the clock on the next time tick
+    */
+    void clockTick();
     
 };
 

@@ -9,7 +9,7 @@ public:
   virtual boolean match(const Msg& m) = 0;  
 };
 
-class MsgServiceClass {
+class MsgServiceSerial {
     
 public: 
   
@@ -29,6 +29,6 @@ public:
   void sendMsg(const String& msg);
 };
 
-extern MsgServiceClass MsgService;
+extern MsgServiceSerial MsgService;
 
 #endif

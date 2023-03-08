@@ -3,15 +3,13 @@
 
 class SensorsReadings {
   bool isPresent = false;
-  bool lightSS = false;
   int lightLvl = 0;
   
   public:
     SensorsReadings();
 
-    void setReadings(bool isPresent, bool lightSS, int lightLvl);
+    void setReadings(bool isPresent, int lightLvl);
     int getLightLvl();
-    bool isLightSysActive();
     bool isSomeoneInRoom();
 };
 

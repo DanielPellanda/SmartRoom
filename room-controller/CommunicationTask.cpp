@@ -1,15 +1,20 @@
 #include "CommunicationTask.h"
 
-CommunicationTask::CommunicationTask (RoomState* currState){
+CommunicationTask::CommunicationTask (RoomState* currState, int rxPin, int txPin){
   this->currState = currState;
+  this->btCommChannel = new MsgServiceBT(rxPin, txPin);
+  this->serialCommChannel = new MsgServiceSerial();
 }
 
 void CommunicationTask::init(int period) {
-    Task::init(period);
+  Task::init(period);
 }
 
 void CommunicationTask::tick() {
-    switch (*this->currState){
+  // parser->parse(btCommChannel->receiveMsg());
+  // parser->parse(serialCommChannel->isMsgAvailable());
+
+  switch (*this->currState){
     case AUTO:
       break;
     case BLUETOOTH:
@@ -18,5 +23,5 @@ void CommunicationTask::tick() {
       break;
     default:
       break;
-    }
+  }
 }

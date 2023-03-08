@@ -2,13 +2,13 @@
 
 String content;
 
-MsgServiceClass MsgService;
+MsgServiceSerial MsgService;
 
-bool MsgServiceClass::isMsgAvailable(){
+bool MsgServiceSerial::isMsgAvailable(){
   return msgAvailable;
 }
 
-Msg* MsgServiceClass::receiveMsg(){
+Msg* MsgServiceSerial::receiveMsg(){
   if (msgAvailable){
     Msg* msg = currentMsg;
     msgAvailable = false;
@@ -20,14 +20,14 @@ Msg* MsgServiceClass::receiveMsg(){
   }
 }
 
-void MsgServiceClass::init(){
+void MsgServiceSerial::init(){
   content.reserve(256);
   content = "";
   currentMsg = NULL;
   msgAvailable = false;  
 }
 
-void MsgServiceClass::sendMsg(const String& msg){
+void MsgServiceSerial::sendMsg(const String& msg){
   Serial.println(msg);  
 }
 
@@ -44,11 +44,11 @@ void serialEvent() {
   }
 }
 
-bool MsgServiceClass::isMsgAvailable(Pattern& pattern){
+bool MsgServiceSerial::isMsgAvailable(Pattern& pattern){
   return (msgAvailable && pattern.match(*currentMsg));
 }
 
-Msg* MsgServiceClass::receiveMsg(Pattern& pattern){
+Msg* MsgServiceSerial::receiveMsg(Pattern& pattern){
   if (msgAvailable && pattern.match(*currentMsg)){
     Msg* msg = currentMsg;
     msgAvailable = false;

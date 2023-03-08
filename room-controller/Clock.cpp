@@ -1,14 +1,21 @@
 #include "Clock.h"
 
 Clock::Clock (int time){
-  this->timeBand = time;
+  this->hours = time;
+  this->minutes = time;
 }
 
-int Clock::getTime() {
-  return this->timeBand;
+int Clock::getHour() {
+  return this->hours;
 }
 
-int Clock::nextTimeBand() {
-  this->timeBand = (this->timeBand + 1) % HRS_FORMAT;
-  return this->timeBand;
+int Clock::getMinute() {
+  return this->minutes;
+}
+
+void Clock::clockTick() {
+  this->minutes = (this->minutes + SKIP) % MINUTES;
+  if(this->minutes == 0){
+    this->hours = (this->hours + 1) % HRS_FORMAT;
+  }
 }
