@@ -1,61 +1,44 @@
 #include "MsgServiceSerial.h"
 
-String content;
+enum {REQ, LIGHT, RB, SOMEONE, LIGHTSENS};
 
-MsgServiceSerial MsgService;
+RemoteConfig* dbConfig;
 
-bool MsgServiceSerial::isMsgAvailable(){
-  return msgAvailable;
+SensorsReadings* sensors;
+
+String parsedMsg[MSG_FIELDS];
+
+MsgServiceSerial::MsgServiceSerial(SensorsReadings* sens, RemoteConfig* conf){
+  this->sensors = sensors = sens;
+  this->dbConfig = dbConfig = conf;
 }
 
-Msg* MsgServiceSerial::receiveMsg(){
-  if (msgAvailable){
-    Msg* msg = currentMsg;
-    msgAvailable = false;
-    currentMsg = NULL;
-    content = "";
-    return msg;  
-  } else {
-    return NULL; 
-  }
-}
-
-void MsgServiceSerial::init(){
-  content.reserve(256);
-  content = "";
-  currentMsg = NULL;
-  msgAvailable = false;  
-}
-
-void MsgServiceSerial::sendMsg(const String& msg){
+void MsgServiceSerial::sendMsg(String msg){
   Serial.println(msg);  
 }
 
-void serialEvent() {
-  /* reading the content */
-  while (Serial.available()) {
-    char ch = (char) Serial.read();
-    if (ch == '\n'){
-      MsgService.currentMsg = new Msg(content);
-      MsgService.msgAvailable = true;      
-    } else {
-      content += ch;      
-    }
+void clearMsg(){
+  for (int i = 0; i < MSG_FIELDS; i ++ ){
+    parsedMsg[i] = "";
   }
 }
 
-bool MsgServiceSerial::isMsgAvailable(Pattern& pattern){
-  return (msgAvailable && pattern.match(*currentMsg));
-}
-
-Msg* MsgServiceSerial::receiveMsg(Pattern& pattern){
-  if (msgAvailable && pattern.match(*currentMsg)){
-    Msg* msg = currentMsg;
-    msgAvailable = false;
-    currentMsg = NULL;
-    content = "";
-    return msg;  
-  } else {
-    return NULL; 
+void serialEvent() {
+  int i = 0;
+  /* reading the content */
+  while (Serial.available()) {
+    char ch = (char) Serial.read();
+    switch(ch){
+      case SEP:
+        i++;
+        break;
+      case END_COMM:
+        dbConfig->setConfig(parsedMsg[REQ], parsedMsg[LIGHT], parsedMsg[RB]);
+        sensors->setReadings(parsedMsg[SOMEONE], parsedMsg[LIGHTSENS]);
+        break;
+      default:
+        parsedMsg[i] += ch;
+        break;
+    }
   }
 }

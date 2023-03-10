@@ -1,9 +1,13 @@
 #include "CommunicationTask.h"
 
-CommunicationTask::CommunicationTask (RoomState* currState, int rxPin, int txPin){
+CommunicationTask::CommunicationTask(RoomState* currState, int rxPin, int txPin,
+    RemoteConfig* btConfig, RemoteConfig* dbConfig, SensorsReadings* sens){
   this->currState = currState;
-  this->btCommChannel = new MsgServiceBT(rxPin, txPin);
-  this->serialCommChannel = new MsgServiceSerial();
+  this->btCommChannel = new MsgServiceBT(rxPin, txPin, btConfig);
+  this->serialCommChannel = new MsgServiceSerial(sens, dbConfig);
+  this->btConfig = btConfig;
+  this->dbConfig = dbConfig;
+  this->sens = sens;
 }
 
 void CommunicationTask::init(int period) {
@@ -11,17 +15,29 @@ void CommunicationTask::init(int period) {
 }
 
 void CommunicationTask::tick() {
-  // parser->parse(btCommChannel->receiveMsg());
-  // parser->parse(serialCommChannel->isMsgAvailable());
-
-  switch (*this->currState){
+  String msg;
+  btCommChannel->receiveMsg();
+  switch (*currState){
     case AUTO:
+      if(btConfig->isCtrlReq()){
+        *currState = BLUETOOTH;
+      } else if(dbConfig->isCtrlReq()){
+        *currState = DASHBOARD;
+      }
       break;
     case BLUETOOTH:
+      if(!btConfig->isCtrlReq()){
+        *currState = AUTO;
+      }
       break;
     case DASHBOARD:
+      if(!dbConfig->isCtrlReq()){
+        *currState = AUTO;
+      }
       break;
     default:
       break;
   }
+  btCommChannel->sendMsg(msg);
+  serialCommChannel->sendMsg(msg);
 }

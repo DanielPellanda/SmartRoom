@@ -3,22 +3,33 @@
 
 #include "Arduino.h"
 #include "SoftwareSerial.h"
-#include "Msg.h"
+#include "RemoteConfig.h"
+
+#define NUM_PARAM 3
+#define SEP ';'
+#define END_COMM '\n'
 
 class MsgServiceBT {
     
 public: 
-  MsgServiceBT(int rxPin, int txPin);  
+  MsgServiceBT(int rxPin, int txPin, RemoteConfig* conf);
+
   void init();  
-  bool isMsgAvailable();
-  Msg* receiveMsg();
-  bool sendMsg(Msg msg);
+  void receiveMsg();
+  bool sendMsg(String msg);
 
 private:
-  String content;
-  Msg* availableMsg;
-  SoftwareSerial* channel;
+  enum {REQ, LIGHT, RB};
+
+  SoftwareSerial* channel = nullptr;
+  String parsedMsg[NUM_PARAM];
+  RemoteConfig* btConfig = nullptr;
   
+  void clearMsg(){
+    for (int i = 0; i < NUM_PARAM; i ++ ){
+      parsedMsg[i] = "";
+    }
+  }
 };
 
 #endif

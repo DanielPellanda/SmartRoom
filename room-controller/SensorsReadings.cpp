@@ -1,8 +1,8 @@
 #include "SensorsReadings.h"
 
-void SensorsReadings::setReadings(bool isPresent, int lightLvl){
-  this->isPresent = isPresent;
-  this->lightLvl = lightLvl;
+void SensorsReadings::setReadings(String presence, String lightLvl){
+  presence == YES ? isPresent = true : isPresent = false;
+  this->lightLvl = lightLvl.toInt();
 }
 
 int SensorsReadings::getLightLvl(){

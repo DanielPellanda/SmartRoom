@@ -2,33 +2,21 @@
 #define __MSG_SERVICE_SERIAL__
 
 #include "Arduino.h"
-#include "Msg.h"
+#include "RemoteConfig.h"
+#include "SensorsReadings.h"
 
-class Pattern {
-public:
-  virtual boolean match(const Msg& m) = 0;  
-};
+#define MSG_FIELDS 5
+#define SEP ';'
+#define END_COMM '\n'
 
 class MsgServiceSerial {
-    
-public: 
-  
-  Msg* currentMsg;
-  bool msgAvailable;
 
-  void init();  
+public:
+  RemoteConfig* dbConfig = nullptr;
+  SensorsReadings* sensors = nullptr;
 
-  bool isMsgAvailable();
-  Msg* receiveMsg();
-
-  bool isMsgAvailable(Pattern& pattern);
-
-  /* note: message deallocation is responsibility of the client */
-  Msg* receiveMsg(Pattern& pattern);
-  
-  void sendMsg(const String& msg);
+  MsgServiceSerial(SensorsReadings* sens, RemoteConfig* conf);
+  void sendMsg(String msg);
 };
-
-extern MsgServiceSerial MsgService;
 
 #endif
