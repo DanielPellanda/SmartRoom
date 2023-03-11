@@ -10,26 +10,30 @@
 #define END_COMM '\n'
 
 class MsgServiceBT {
-    
-public: 
-  MsgServiceBT(int rxPin, int txPin, RemoteConfig* conf);
+  public: 
+    MsgServiceBT(int rxPin, int txPin, RemoteConfig* conf);
 
-  void init();  
-  void receiveMsg();
-  bool sendMsg(String msg);
+    void init();
+    /**
+    * receives and parses msg from the bluetooth module if present
+    */
+    void receiveMsg();
+    /**
+    * sends msg via bluetooth
+    */
+    bool sendMsg(String msg);
 
-private:
-  enum {REQ, LIGHT, RB};
-
-  SoftwareSerial* channel = nullptr;
-  String parsedMsg[NUM_PARAM];
-  RemoteConfig* btConfig = nullptr;
+  private:
+    enum {REQ, LIGHT, RB};
+    SoftwareSerial* channel = nullptr;
+    String parsedMsg[NUM_PARAM];
+    RemoteConfig* btConfig = nullptr;
   
-  void clearMsg(){
-    for (int i = 0; i < NUM_PARAM; i ++ ){
-      parsedMsg[i] = "";
-    }
-  }
+    void clearMsg(){
+      for (int i = 0; i < NUM_PARAM; i ++ ){
+       parsedMsg[i] = "";
+     }
+   }
 };
 
 #endif

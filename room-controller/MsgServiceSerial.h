@@ -10,13 +10,15 @@
 #define END_COMM '\n'
 
 class MsgServiceSerial {
+  public:
+    RemoteConfig* dbConfig = nullptr;
+    SensorsReadings* sensors = nullptr;
 
-public:
-  RemoteConfig* dbConfig = nullptr;
-  SensorsReadings* sensors = nullptr;
-
-  MsgServiceSerial(SensorsReadings* sens, RemoteConfig* conf);
-  void sendMsg(String msg);
+    MsgServiceSerial(SensorsReadings* sens, RemoteConfig* conf);
+    /**
+    * sends msg on the serial line
+    */
+    void sendMsg(String msg);
 };
 
 #endif

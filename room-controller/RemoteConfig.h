@@ -8,13 +8,24 @@ class RemoteConfig {
   bool light;
   int rollerBlinds;
 
-public:
-  RemoteConfig ();
-
-  void setConfig(String req, String lgt, String rb);
-  bool isCtrlReq();
-  bool islightOn();
-  int getRollerBlindsAngle();
+  public:
+    RemoteConfig ();
+    /**
+    * interprets the input strings taken from serial line and assigns them to internal fields
+    */
+    void setConfig(String req, String lgt, String rb);
+    /**
+    * true if is requested remote control
+    */
+    bool isCtrlReq();
+    /**
+    * true if lights are set to be on
+    */
+    bool islightOn();
+    /**
+    * returns the current unrolling percentage of the blinds
+    */
+    int getRollerBlindsAngle();
 };
 
 #endif

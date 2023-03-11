@@ -13,9 +13,13 @@ class ClockTask : public Task {
   public:
     ClockTask(RoomState* currState);
 
+   /**
+    * returns the virtual clock
+    */
+    Clock* getClock();
+    
     void init(int period);
     void tick();
-    Clock* getClock();
 };
 
 #endif

@@ -24,8 +24,17 @@ class CommunicationTask : public Task {
 
     void init(int period, ClockTask* clockTask, int* servoAngle, bool* lights);
     void tick();
+    /**
+    * returns remote configuration received via bluetooth
+    */
     RemoteConfig* getBTConfig();
+    /**
+    * returns remote configuration received via serial line
+    */
     RemoteConfig* getDBConfig();
+    /**
+    * returns the readings of the sensor board from the serial line 
+    */
     SensorsReadings* getSensorsReadings();
 };
 

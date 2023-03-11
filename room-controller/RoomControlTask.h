@@ -26,16 +26,30 @@ class RoomControlTask : public Task {
   int* currAngle;
   bool* lights;
 
+  /**
+  * applies the given angle 0-180 to the servo motor
+  */
   void angle(int angle);
+  /**
+  * applies the lighting system's rules
+  */
   void lightRules();
+  /**
+  * applies the roller blinds system's rules
+  */
   void rollerBlindsRules();
     
   public:
     RoomControlTask(RoomState* currState, int ledPin, int servoPin);
-
-    void init(int period, ClockTask* clockTask, CommunicationTask* commTask);
+    /**
+    * returns a pointer to the current roller blinds unorlling %
+    */
     int* getRollerBlindsAngle();
+    /**
+    * returns a pointer to the room lighting state
+    */
     bool* lightsOn();
+    void init(int period, ClockTask* clockTask, CommunicationTask* commTask);
     void tick();
 };
 
