@@ -46,3 +46,15 @@ void CommunicationTask::tick() {
   btCommChannel->sendMsg(msg);
   serialCommChannel->sendMsg(msg);
 }
+
+RemoteConfig* CommunicationTask::getBTConfig(){
+  return this->btConfig;
+}
+
+RemoteConfig* CommunicationTask::getDBConfig(){
+  return this->dbConfig;
+}
+
+SensorsReadings* CommunicationTask::getSensorsReadings(){
+  return this->sens;
+}

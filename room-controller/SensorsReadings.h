@@ -6,8 +6,8 @@
 #define YES "1"
 
 class SensorsReadings {
-  bool isPresent = false;
-  int lightLvl = 0;
+  bool isPresent;
+  int lightLvl;
   
   public:
     SensorsReadings();
