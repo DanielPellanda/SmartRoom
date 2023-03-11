@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Smart Room Dashboard</title>
+        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="dashboard.css"/>
+		<script>
+			function updateRollerBlind(value, id_left, id_right, id_value) {
+				let percentage = value * 100 / 180;
+				let loading_time = 3;
+
+				let degrees = percentage * 360 / 100;
+
+				let degrees_right = degrees;
+				if (degrees > 180) {
+					degrees_right = 180;
+				}
+				degrees_left = degrees - degrees_right;
+				
+				document.getElementById(id_left).style.webkitTransform  = "rotate(" + degrees_left + "deg)";
+				document.getElementById(id_right).style.webkitTransform  = "rotate(" + degrees_right + "deg)";
+				document.getElementById(id_left).style.transform  = "rotate(" + degrees_left + "deg)";
+				document.getElementById(id_right).style.transform  = "rotate(" + degrees_right +"deg)";
+				document.getElementById(id_value).innerHTML = Math.round(percentage) + "%";
+			}
+			
+			function updateLight(is_on, id_led) {
+				if (is_on) {
+					document.getElementById(id_led).style.backgroundColor = "#ABFF00";
+					document.getElementById(id_led).style.boxShadow = "rgba(0, 0, 0, 0.2) 0 -1px 7px 1px, inset #304701 0 -1px 9px, #89FF00 0 2px 12px";
+				} else {
+					document.getElementById(id_led).style.backgroundColor = "#86C900";
+					document.getElementById(id_led).style.boxShadow = "none";
+				}
+			}
+			
+			function updateLightLvl(value, id_bar) {
+				document.getElementById(id_bar).style.width = value + "%";
+				document.getElementById(id_bar).innerHTML = Math.round(value) + "%";
+			}
+			
+			function getDataFromServer() {
+				while (true) {
+				}
+			}
+		</script>
+    </head>
+    <body>
+	<div class="container">
+		<div class ="row">
+			<h2>Smart Room Dashboard</h2>
+			<p id="time">Time:</p><br/> 
+			<p id="status">Status:</p>
+		</div>
+		<div class ="row">
+			<div class="col-md-8">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-3">
+							<div class="led-box">
+								<div class="led-green" id="pled"></div>
+							</div>
+						</div>
+						<div class="col-3">
+							<div class="progress blue">
+								<span class="progress-left">
+									<span class="progress-bar" id="pleft"></span>
+								</span>
+								<span class="progress-right">
+									<span class="progress-bar" id="pright"></span>
+								</span>
+								<div class="progress-value" id="pvalue">0%</div>
+							</div>
+						</div>
+						<div class="col-6">
+							<div class="progress vertical">
+								<div class="progress-bar bg-warning" id="pbar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>  
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+    <script src="bootstrap/js/bootstrap.min.js"></script>
+	<script>
+		updateLight(1,"pled");
+		updateLightLvl(100, "pbar");
+		updateRollerBlind(100, "pleft", "pright", "pvalue");
+	</script>
+    </body>
+</html>
