@@ -7,10 +7,11 @@
 #include "ClockTask.h"
 #include "CommunicationTask.h"
 
-
 #define DARK 50
-#define VALVE_MIN 0
-#define VALVE_MAX 180
+#define ROLLED_UP 0
+#define UNROLLED 180
+#define WAKEUP 8
+#define SLEEP 19
 #define DELAY_SERVO 50
 
 class RoomControlTask : public Task {
@@ -21,16 +22,20 @@ class RoomControlTask : public Task {
   RemoteConfig* dbConfig = nullptr;
   SensorsReadings* sens = nullptr;
   Clock* clock = nullptr;
-  int servoPin, currAngle;
+  int servoPin;
+  int* currAngle;
+  bool* lights;
 
   void angle(int angle);
+  void lightRules();
+  void rollerBlindsRules();
     
   public:
     RoomControlTask(RoomState* currState, int ledPin, int servoPin);
 
     void init(int period, ClockTask* clockTask, CommunicationTask* commTask);
-    bool isLightOn();
-    int getRollerBlindsAngle();
+    int* getRollerBlindsAngle();
+    bool* lightsOn();
     void tick();
 };
 

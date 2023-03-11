@@ -9,13 +9,15 @@ CommunicationTask::CommunicationTask(RoomState* currState, int rxPin, int txPin)
   this->serialCommChannel = new MsgServiceSerial(sens, this->dbConfig);
 }
 
-void CommunicationTask::init(int period, ClockTask* clockTask) {
+void CommunicationTask::init(int period, ClockTask* clockTask, int* servoAngle, bool* lights) {
   Task::init(period);
   this->clock = clockTask->getClock();
+  this->servoAngle = servoAngle;
+  this->lights = lights;
 }
 
 void CommunicationTask::tick() {
-  String msg;
+  String msg, light;
   btCommChannel->receiveMsg();
   switch (*currState){
     case AUTO:
@@ -38,7 +40,9 @@ void CommunicationTask::tick() {
     default:
       break;
   }
-  msg = *currState + SEP + clock->getHour() + SEP + clock->getMinute() ;
+  lights ? light = "1" : light = "0";
+  msg = *currState + SEP + clock->getHour() + SEP + clock->getMinute() 
+    + SEP + light + SEP + *servoAngle ;
   btCommChannel->sendMsg(msg);
   serialCommChannel->sendMsg(msg);
 }

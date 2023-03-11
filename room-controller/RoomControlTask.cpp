@@ -5,13 +5,24 @@ RoomControlTask::RoomControlTask (RoomState* currState, int ledPin, int servoPin
   this->led = new Led(ledPin);
   this->servo = new Servo();
   this->servoPin = servoPin;
+  *this->currAngle = UNROLLED;
+  *this->lights = false;
+}
+
+void RoomControlTask::init(int period, ClockTask* clockTask, CommunicationTask* commTask) {
+  this->btConfig = commTask->getBTConfig();
+  this->dbConfig = commTask->getDBConfig();
+  this->sens = commTask->getSensorsReadings();
+  this->clock = clockTask->getClock();
+  angle(UNROLLED);
+  Task::init(period);
 }
 
 void RoomControlTask::angle(int angle) {
-  if (angle < VALVE_MIN || angle > VALVE_MAX) {
+  if (angle < ROLLED_UP || angle > UNROLLED) {
     return;
   }
-  currAngle = angle;
+  *currAngle = angle;
 
   float coeff = (2250.0-750.0)/180;
   servo->attach(servoPin);
@@ -20,23 +31,35 @@ void RoomControlTask::angle(int angle) {
   servo->detach();
 }
 
-void RoomControlTask::init(int period, ClockTask* clockTask, CommunicationTask* commTask) {
-  Task::init(period);
-  this->btConfig = commTask->getBTConfig();
-  this->dbConfig = commTask->getDBConfig();
-  this->sens = commTask->getSensorsReadings();
-  this->clock = clockTask->getClock();
-  angle(VALVE_MIN);
+void RoomControlTask:: lightRules(){
+  if(!sens->isSomeoneInRoom()){
+    if (led->isOn()){
+      led->turnOff();
+    }
+  } else {
+    if(sens->getLightLvl() <= DARK && led->isOff()){
+      led->turnOn();
+    }
+  }
+}
+
+void RoomControlTask:: rollerBlindsRules(){
+  if(clock->getHour() >= SLEEP || clock->getHour() < WAKEUP){
+    if(*currAngle != UNROLLED && !sens->isSomeoneInRoom()){
+      angle(UNROLLED);
+    }
+  } else{
+    if(*currAngle == UNROLLED && sens->isSomeoneInRoom()){
+      angle(ROLLED_UP);
+    }
+  }
 }
 
 void RoomControlTask::tick() {
-    switch (*currState){
+  switch (*currState){
     case AUTO:
-      if(led->isOff()){
-        led->turnOn();
-      } else if (led->isOn()) {
-        led->turnOff();
-      }
+      lightRules();
+      rollerBlindsRules();
       break;
     case BLUETOOTH:
       angle(btConfig->getRollerBlindsAngle());
@@ -48,5 +71,14 @@ void RoomControlTask::tick() {
       break;
     default:
       break;
-    }
+  }
+  led->isOn() ? *lights = true : *lights = false;
+}
+
+int* RoomControlTask::getRollerBlindsAngle(){
+  return this->currAngle;
+}
+
+bool* RoomControlTask::lightsOn(){
+  return this->lights;
 }

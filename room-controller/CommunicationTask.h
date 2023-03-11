@@ -6,8 +6,7 @@
 #include "MsgServiceBT.h"
 #include "RemoteConfig.h"
 #include "SensorsReadings.h"
-#include "Clock.h"
-#include "RoomControlTask.h"
+#include "ClockTask.h"
 
 class CommunicationTask : public Task {
   RoomState* currState = nullptr;
@@ -17,11 +16,13 @@ class CommunicationTask : public Task {
   RemoteConfig* dbConfig = nullptr;
   SensorsReadings* sens = nullptr;
   Clock* clock = nullptr;
+  int* servoAngle;
+  bool* lights;
   
   public:
     CommunicationTask(RoomState* currState, int rxPin, int txPin);
 
-    void init(int period, ClockTask* clockTask);
+    void init(int period, ClockTask* clockTask, int* servoAngle, bool* lights);
     void tick();
     RemoteConfig* getBTConfig();
     RemoteConfig* getDBConfig();
