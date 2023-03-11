@@ -1,17 +1,17 @@
 #include "CommunicationTask.h"
 
-CommunicationTask::CommunicationTask(RoomState* currState, int rxPin, int txPin,
-    RemoteConfig* btConfig, RemoteConfig* dbConfig, SensorsReadings* sens){
+CommunicationTask::CommunicationTask(RoomState* currState, int rxPin, int txPin){
   this->currState = currState;
-  this->btCommChannel = new MsgServiceBT(rxPin, txPin, btConfig);
-  this->serialCommChannel = new MsgServiceSerial(sens, dbConfig);
-  this->btConfig = btConfig;
-  this->dbConfig = dbConfig;
-  this->sens = sens;
+  this->btConfig = new RemoteConfig();
+  this->dbConfig = new RemoteConfig();
+  this->sens = new SensorsReadings();
+  this->btCommChannel = new MsgServiceBT(rxPin, txPin, this->btConfig);
+  this->serialCommChannel = new MsgServiceSerial(sens, this->dbConfig);
 }
 
-void CommunicationTask::init(int period) {
+void CommunicationTask::init(int period, ClockTask* clockTask) {
   Task::init(period);
+  this->clock = clockTask->getClock();
 }
 
 void CommunicationTask::tick() {
@@ -38,6 +38,7 @@ void CommunicationTask::tick() {
     default:
       break;
   }
+  msg = *currState + SEP + clock->getHour() + SEP + clock->getMinute() ;
   btCommChannel->sendMsg(msg);
   serialCommChannel->sendMsg(msg);
 }

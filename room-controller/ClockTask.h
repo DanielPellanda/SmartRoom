@@ -11,10 +11,11 @@ class ClockTask : public Task {
   Clock* clock = nullptr;
 
   public:
-    ClockTask(RoomState* currState, int timeBand);
+    ClockTask(RoomState* currState);
 
     void init(int period);
     void tick();
+    Clock* getClock();
 };
 
 #endif
