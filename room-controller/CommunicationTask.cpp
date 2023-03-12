@@ -1,21 +1,23 @@
 #include "CommunicationTask.h"
 
-CommunicationTask::CommunicationTask(RoomState* currState, int rxPin, int txPin,
-    RemoteConfig* btConfig, RemoteConfig* dbConfig, SensorsReadings* sens){
+CommunicationTask::CommunicationTask(RoomState* currState, int rxPin, int txPin){
   this->currState = currState;
-  this->btCommChannel = new MsgServiceBT(rxPin, txPin, btConfig);
-  this->serialCommChannel = new MsgServiceSerial(sens, dbConfig);
-  this->btConfig = btConfig;
-  this->dbConfig = dbConfig;
-  this->sens = sens;
+  this->btConfig = new RemoteConfig();
+  this->dbConfig = new RemoteConfig();
+  this->sens = new SensorsReadings();
+  this->btCommChannel = new MsgServiceBT(rxPin, txPin, this->btConfig);
+  this->serialCommChannel = new MsgServiceSerial(sens, this->dbConfig);
 }
 
-void CommunicationTask::init(int period) {
+void CommunicationTask::init(int period, ClockTask* clockTask, int* servoAngle, bool* lights) {
   Task::init(period);
+  this->clock = clockTask->getClock();
+  this->servoAngle = servoAngle;
+  this->lights = lights;
 }
 
 void CommunicationTask::tick() {
-  String msg;
+  String msg, light;
   btCommChannel->receiveMsg();
   switch (*currState){
     case AUTO:
@@ -38,6 +40,21 @@ void CommunicationTask::tick() {
     default:
       break;
   }
+  lights ? light = "1" : light = "0";
+  msg = *currState + SEP + clock->getHour() + SEP + clock->getMinute() 
+    + SEP + light + SEP + *servoAngle ;
   btCommChannel->sendMsg(msg);
   serialCommChannel->sendMsg(msg);
+}
+
+RemoteConfig* CommunicationTask::getBTConfig(){
+  return this->btConfig;
+}
+
+RemoteConfig* CommunicationTask::getDBConfig(){
+  return this->dbConfig;
+}
+
+SensorsReadings* CommunicationTask::getSensorsReadings(){
+  return this->sens;
 }

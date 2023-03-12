@@ -6,14 +6,22 @@
 #define YES "1"
 
 class SensorsReadings {
-  bool isPresent = false;
-  int lightLvl = 0;
+  bool isPresent;
+  int lightLvl;
   
   public:
     SensorsReadings();
-
+    /**
+    * interprets the input strings taken from serial line and assigns them to internal fields
+    */
     void setReadings(String presence, String lightLvl);
+    /**
+    * returns the current light level in the room from 0 to 100 %
+    */
     int getLightLvl();
+    /**
+    * true if someone is in the room
+    */
     bool isSomeoneInRoom();
 };
 

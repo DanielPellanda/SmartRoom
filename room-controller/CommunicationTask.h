@@ -6,6 +6,7 @@
 #include "MsgServiceBT.h"
 #include "RemoteConfig.h"
 #include "SensorsReadings.h"
+#include "ClockTask.h"
 
 class CommunicationTask : public Task {
   RoomState* currState = nullptr;
@@ -14,13 +15,27 @@ class CommunicationTask : public Task {
   RemoteConfig* btConfig = nullptr;
   RemoteConfig* dbConfig = nullptr;
   SensorsReadings* sens = nullptr;
+  Clock* clock = nullptr;
+  int* servoAngle;
+  bool* lights;
   
   public:
-    CommunicationTask(RoomState* currState, int rxPin, int txPin,
-      RemoteConfig* btConfig, RemoteConfig* dbConfig, SensorsReadings* sens);
+    CommunicationTask(RoomState* currState, int rxPin, int txPin);
 
-    void init(int period);
+    void init(int period, ClockTask* clockTask, int* servoAngle, bool* lights);
     void tick();
+    /**
+    * returns remote configuration received via bluetooth
+    */
+    RemoteConfig* getBTConfig();
+    /**
+    * returns remote configuration received via serial line
+    */
+    RemoteConfig* getDBConfig();
+    /**
+    * returns the readings of the sensor board from the serial line 
+    */
+    SensorsReadings* getSensorsReadings();
 };
 
 #endif

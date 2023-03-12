@@ -11,8 +11,13 @@ class ClockTask : public Task {
   Clock* clock = nullptr;
 
   public:
-    ClockTask(RoomState* currState, int timeBand);
+    ClockTask(RoomState* currState);
 
+   /**
+    * returns the virtual clock
+    */
+    Clock* getClock();
+    
     void init(int period);
     void tick();
 };
