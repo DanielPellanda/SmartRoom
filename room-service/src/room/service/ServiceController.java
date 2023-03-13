@@ -22,13 +22,14 @@ public class ServiceController implements Service{
             "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
 	
 	private final int espPort = 9000;
-	private final int dashboardPort = 9003;
+	private final int dashboardPort = 9001;
 	private final String arduinoPort = "";
 	
 	private HttpChannel espConnector;
 	private HttpChannel dashboardConnector;
 	private SerialChannel arduinoConnector;
 	
+	private final int period = 200;
 	private Database data;
 	
 	public void setup() {
@@ -58,12 +59,16 @@ public class ServiceController implements Service{
 		espConnector.start();
 		dashboardConnector.start();
 		arduinoConnector.start();
-		
-		
+			
 		while(true) {
 			synchronized (data) {
 				arduinoConnector.send(data.personDetected + ";" + data.lightLevel);
 				data.updateArduinoData(arduinoConnector.read());
+				try {
+					Thread.sleep(period);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		
