@@ -1,4 +1,4 @@
-package room.service.channel;
+package room.service.channel.serial;
 
 import java.io.UnsupportedEncodingException;
 
