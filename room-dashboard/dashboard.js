@@ -13,7 +13,7 @@ function updateRollerBlind(value) {
 	if (isNaN(value)) {
 		percentage = 0;
 	}
-				
+	
 	let loading_time = 3;
 
 	let degrees = percentage * 360 / 100;
@@ -48,11 +48,22 @@ function updateLightLvl(value) {
 	}
 }
 
+function updateTime(hour, min) {
+	if (!isNaN(hour) && !isNaN(min)) {
+		if (hour < 24 && hour >= 0 && min < 60 && min >= 0) {
+			if (min < 10) {
+				min = "0" + min;
+			}
+			document.getElementById(id_time).innerHTML = "Time: " + hour + ":" + min;
+		}
+	}
+}
+
 function getDataFromServer() {
 	let req = new XMLHttpRequest();
 	req.onload = function() {
 		document.getElementById(id_status).innerHTML = "Status: " + this.responseText.split(";")[0];
-		document.getElementById(id_time).innerHTML = "Time: " + this.responseText.split(";")[1] + ":" + this.responseText.split(";")[2];
+		updateTime(this.responseText.split(";")[1], this.responseText.split(";")[2]);
 		updateLight(this.responseText.split(";")[3]);
 		updateRollerBlind(this.responseText.split(";")[4]);
 		updateLightLvl(this.responseText.split(";")[5]);
