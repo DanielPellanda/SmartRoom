@@ -1,5 +1,6 @@
 package room.service;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
@@ -9,6 +10,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
+import jssc.SerialPortException;
 import room.service.channel.http.HttpChannel;
 import room.service.channel.http.HttpResponse;
 import room.service.channel.serial.SerialChannel;
@@ -23,32 +25,33 @@ public class ServiceController implements Service{
 	
 	private final int espPort = 9000;
 	private final int dashboardPort = 9001;
-	private final String arduinoPort = "";
 	
 	private HttpChannel espConnector;
 	private HttpChannel dashboardConnector;
 	private SerialChannel arduinoConnector;
 	
-	private final int period = 200;
-	private Database data;
+	private final Database data = new Database();
+	private final long period = 200;
 	
-	public void setup() {
+	public ServiceController() {
 		try {
 			final InetAddress wlanAddr = getWlanInterfaceAddress(); 
-			
 			espConnector = new HttpChannel("ESP", new InetSocketAddress(wlanAddr, espPort));
 			dashboardConnector = new HttpChannel("Dashboard", new InetSocketAddress(wlanAddr, dashboardPort));
-			arduinoConnector = new SerialChannel(arduinoPort);
-			
-			espConnector.setup();
-			dashboardConnector.setup();
+			arduinoConnector = new SerialChannel();
 			
 			espConnector.addHandler("/updateData", req -> data.updateEspData(req.getPostData()));
 			dashboardConnector.addHandler("/requestTelemetry", req -> getTelemetry());
+		} catch (SerialPortException e) {
+			System.err.println(e.toString());
+			System.exit(25);
 		} catch (UnknownHostException e) {
 			System.err.println(e.toString());
-			System.exit(27);
+			System.exit(26);
 		} catch (SocketException e) {
+			System.err.println(e.toString());
+			System.exit(27);
+		} catch (IOException e) {
 			System.err.println(e.toString());
 			System.exit(28);
 		}
@@ -58,25 +61,32 @@ public class ServiceController implements Service{
 	public void start() {
 		espConnector.start();
 		dashboardConnector.start();
-		arduinoConnector.start();
-			
-		while(true) {
-			synchronized (data) {
-				arduinoConnector.send(data.personDetected + ";" + data.lightLevel);
-				data.updateArduinoData(arduinoConnector.read());
-				try {
+		
+		try {
+			arduinoConnector.start();
+			while(true) {
+				synchronized (data) {
+					arduinoConnector.send(data.personDetected + ";" + data.lightLevel);
+					data.updateArduinoData(arduinoConnector.read());
 					Thread.sleep(period);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
 				}
 			}
+			//Thread.sleep(60 * 1000);
+		} catch (SerialPortException e) {
+			System.err.println(e.toString());
+			System.exit(25);
+		} catch (InterruptedException e) {
+			System.err.println(e.toString());
+			System.exit(24);			
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
 		}
 		
-		/*
+		
 		dashboardConnector.close();
 		espConnector.close();
 		arduinoConnector.close();
-		*/
 	}
 	
 	private InetAddress getWlanInterfaceAddress() throws UnknownHostException, SocketException {

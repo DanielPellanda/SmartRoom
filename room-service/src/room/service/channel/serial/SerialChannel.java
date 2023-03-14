@@ -13,27 +13,24 @@ public class SerialChannel implements SerialPortEventListener {
 	private boolean hasStarted = false;
 	private String lastReceivedData = "";
 	
-	public SerialChannel(String portName) {
-		serialPort = new SerialPort(portName);
+	public SerialChannel() throws SerialPortException{
+		serialPort = new SerialPort(searchPort());
+		serialPort.openPort();
+		serialPort.closePort();
 	}
 	
-	public void start() {
-		try {
-		    serialPort.openPort();
-
-		    serialPort.setParams(SerialPort.BAUDRATE_9600,
-		                         SerialPort.DATABITS_8,
-		                         SerialPort.STOPBITS_1,
-		                         SerialPort.PARITY_NONE);
-
-		    serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
-		                                  SerialPort.FLOWCONTROL_RTSCTS_OUT);
-
-		    serialPort.addEventListener(this, SerialPort.MASK_RXCHAR);
-		    hasStarted = true;
-		} catch (SerialPortException ex) {
-			System.err.println(ex.toString());
-		}
+	public void start() throws SerialPortException{
+		serialPort.openPort();
+		serialPort.setParams(SerialPort.BAUDRATE_9600,
+		                     SerialPort.DATABITS_8,
+		                     SerialPort.STOPBITS_1,
+		                     SerialPort.PARITY_NONE);
+		serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
+		                              SerialPort.FLOWCONTROL_RTSCTS_OUT);
+		serialPort.addEventListener(this, SerialPort.MASK_RXCHAR);
+		hasStarted = true;
+		
+		System.out.println("Arduino channel starting on serial port " + serialPort.getPortName());
 	}
 
 	/**
@@ -49,17 +46,16 @@ public class SerialChannel implements SerialPortEventListener {
 				}
 			} catch (Exception ex) {
 				System.err.println(ex.getMessage());
+			} finally {
+				hasStarted = false;
 			}
 		}
 	}
 
-	public synchronized void send(String msg) {
+	public synchronized void send(String msg) throws SerialPortException, UnsupportedEncodingException{
 		if (hasStarted) {
-			try {
-				serialPort.writeString(msg, "UTF-8");
-			} catch (SerialPortException | UnsupportedEncodingException e) {
-				System.err.println(e.getMessage());
-			}
+			serialPort.writeString(msg, "UTF-8");
+			System.out.println("Arduino <- " + msg);
 		}
 	}
 	
@@ -75,11 +71,20 @@ public class SerialChannel implements SerialPortEventListener {
         if(event.isRXCHAR() && event.getEventValue() > 0 && hasStarted) {
             try {
                 lastReceivedData = serialPort.readString(event.getEventValue());
-                System.out.print("Arduino:: " + lastReceivedData);
+                System.out.print("Arduino -> " + lastReceivedData);
             }
             catch (SerialPortException ex) {
                 System.err.println("Error in receiving string from COM-port: \n\t" + ex.toString());
             }
         }
+	}
+	
+	private String searchPort() {
+		 for (Object port : com.fazecast.jSerialComm.SerialPort.getCommPorts()) {
+			 if (port.toString().contains("Arduino Uno")) {
+				 return port.toString();
+			 }
+		 }
+		 return "null";
 	}
 }
