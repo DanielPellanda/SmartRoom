@@ -2,8 +2,9 @@
 <html>
     <head>
         <title>Smart Room Dashboard</title>
-        <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css"/>
+        <link rel="stylesheet" href="assets/bootstrap.min.css"/>
         <link rel="stylesheet" href="dashboard.css"/>
+		<script src="assets/chart.js"></script>
 		<script src="dashboard.js"></script>
     </head>
     <body>
@@ -39,11 +40,17 @@
 								</div>
 							</div>
 						</div>
+						<div class="row">
+							<div class="col-9">
+								<canvas id="lightChart" style="width:70%; margin-top:20px"></canvas>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<script src="bootstrap/js/bootstrap.min.js"></script>
+		<script src="assets/bootstrap.min.js"></script>
+		<script src="graph.js"></script>
 		<script>getDataFromServer()</script>
     </body>
 </html>
