@@ -1,6 +1,7 @@
 #ifndef __LED__
 #define __LED__
 
+#include "Arduino.h"
 typedef enum {ON, OFF} LedState;
 
 class Led {
@@ -10,11 +11,11 @@ class Led {
   public:
     Led(int pin);
     /**
-    * returns true id the led is on
+    * returns true if the led is on
     */
     bool isOn();
     /**
-    * returns true id the led is off
+    * returns true if the led is off
     */
     bool isOff();
     /**
@@ -22,11 +23,11 @@ class Led {
     */
     int getPin();
     /**
-    * Turns on the pin
+    * Turns on the led
     */
     void turnOn();
     /**
-    * Turns off the pin
+    * Turns off the led
     */
     void turnOff();
 };
