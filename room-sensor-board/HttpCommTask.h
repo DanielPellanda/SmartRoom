@@ -10,8 +10,13 @@ class HttpCommTask {
   const char* serverURL = "http://192.168.178.119:9000";
   bool* someone;
   int* light;
-
+  /**
+  * connects to wifi
+  */
   void connectToWifi();
+  /**
+  * sends msg using http
+  */
   int sendMsg(String msg);
 
 	public:

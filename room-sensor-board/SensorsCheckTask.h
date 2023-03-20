@@ -17,8 +17,6 @@ class SensorsCheckTask {
 
 	public:
 		SensorsCheckTask(int pinLs, int pinPir, int pinLed);
-    void init(int period);
-    void tick();
     /**
     * returns the current light in percentage from 0 to 100
     */
@@ -28,6 +26,8 @@ class SensorsCheckTask {
     * of the presence of someone in the room
     */
     bool* isSomeoneInRoom();
+    void init(int period);
+    void tick();
 };
 
 #endif
