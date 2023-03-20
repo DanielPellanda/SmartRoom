@@ -1,34 +1,37 @@
 #include "SensorsCheckTask.h"
 
-LightCheckTask::LightCheckTask(int pinLs, int pinPir, int pinLed) {
+SensorsCheckTask::SensorsCheckTask(int pinLs, int pinPir, int pinLed){
   this->lightSens = new LightSensor(pinLs);
   this->pir = new Pir(pinPir);
   this->led = new Led(pinLed);
 }
 
-int* LightCheckTask::getLightLevel() {
+int* SensorsCheckTask::getLightLevel() {
   return currLight;
 }
 
-int* LightCheckTask::isSomeoneInRoom() {
+bool* SensorsCheckTask::isSomeoneInRoom() {
   return someone;
 }
 
-void LightCheckTask::setup() {
+void SensorsCheckTask::init(int period) {
+  this->period = period;
   *currLight = 0;
   *someone = false;
-  wasDetected = false;
+  lastDetection = 0;
   pir->calibrate();
-  yield();
 }
 
-void LightCheckTask::loop() {
+void SensorsCheckTask::tick() {
   *currLight = lightSens->measureLightLevel();
-  if(pir->isMovementDetected() && !wasDetected){
-    led->isOff() ? led->turnOn() : led->turnOff();
-    wasDetected = true;
-  }else if(!pir->isMovementDetected() && wasDetected) {
-    wasDetected = false;
+  if (!pir->isMovementDetected()){
+    if(led->isOn() && lastDetection > TIMEOUT){
+      led->turnOff();
+    }
+    lastDetection += period;
+  } else if (led->isOff()) {
+    lastDetection = 0;
+    led->turnOn();
   }
   led->isOn() ? *someone  = true : *someone = false;
 }

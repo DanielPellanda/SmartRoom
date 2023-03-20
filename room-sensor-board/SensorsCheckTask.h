@@ -5,17 +5,20 @@
 #include "Pir.h"
 #include "Led.h"
 
+#define TIMEOUT 2000 //msec
 
-class LightCheckTask : public Task {
+class SensorsCheckTask {
 	LightSensor* lightSens;
   Pir* pir;
   Led* led;
   int* currLight;
-  bool wasDetected;
+  int lastDetection, period;
   bool* someone;
 
 	public:
-		LightCheckTask(int pinLs, int pinPir, int pinLed);
+		SensorsCheckTask(int pinLs, int pinPir, int pinLed);
+    void init(int period);
+    void tick();
     /**
     * returns the current light in percentage from 0 to 100
     */
