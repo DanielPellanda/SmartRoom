@@ -18,12 +18,29 @@
 				<div class="col-md-8">
 					<div class="container-fluid">
 						<div class="row">
-							<div class="col-3">
+							<div class="col-3" style="margin-top: 5px">
+								<p><b>Manual control</b></p>
+								<div class="form-group">
+									<label for="switch">Lights: </label>
+									<label class="switch" id="switch">
+										<input type="checkbox" id="slight" onclick="formOnClick()">
+										<span class="slider round"></span>
+									</label><br>
+									<label for="rollerblind">Rollerblinds: </label>
+									<input type="number" id="rollerblind" value="0" min="0" max="100" onclick="formOnClick()">
+									<br>
+									<button type="submit" id="btnApply" value="Apply" onclick="applyOnClick()">Apply</button>
+									<button id="btnRelease" value="Release" onclick="releaseOnClick()" disabled>Release</button>
+									<br>
+									<small id="msg"></small>
+								</div>
+							</div>
+							<div class="col-1">
 								<div class="led-box">
 									<div class="led-green" id="pled"></div>
 								</div>
 							</div>
-							<div class="col-3">
+							<div class="col-2">
 								<div class="progress blue">
 									<span class="progress-left">
 										<span class="progress-bar" id="pleft"></span>
@@ -51,6 +68,6 @@
 		</div>
 		<script src="assets/bootstrap.min.js"></script>
 		<script src="graph.js"></script>
-		<script>getDataFromServer()</script>
+		<script>//runtime()</script>
     </body>
 </html>
