@@ -32,7 +32,7 @@ public class HttpRequestObject {
 		}
 	}
 	
-	private String parseHeaders(final Headers h) {
+	public static String parseHeaders(final Headers h) {
 		String response = "";
 		for (Entry<String, List<String>> entry : h.entrySet()){
 			response += entry.toString() + "\n";
@@ -40,7 +40,7 @@ public class HttpRequestObject {
 		return response;
 	}
 	
-	private void parseQuery(final Map<String, String> parameters, final String query) {
+	public static void parseQuery(final Map<String, String> parameters, final String query) {
 		if (Optional.ofNullable(query).isEmpty()) {
 			return;
 		}

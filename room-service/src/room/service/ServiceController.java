@@ -7,11 +7,14 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 import jssc.SerialPortException;
 import room.service.channel.http.HttpChannel;
+import room.service.channel.http.HttpRequestObject;
 import room.service.channel.http.HttpResponse;
 import room.service.channel.serial.SerialChannel;
 
@@ -41,7 +44,8 @@ public class ServiceController implements Service{
 			arduinoConnector = new SerialChannel();
 			
 			espConnector.addHandler("/updateData", req -> data.updateEspData(req.getPostData()));
-			dashboardConnector.addHandler("/requestTelemetry", req -> getTelemetry());
+			dashboardConnector.addHandler("/requestData", req -> data.getData());
+			dashboardConnector.addHandler("/accessControl", req -> data.putAccessRequest(req.getPostData()));
 		} catch (SerialPortException e) {
 			System.err.println(e.toString());
 			System.exit(25);
@@ -66,6 +70,9 @@ public class ServiceController implements Service{
 			arduinoConnector.start();
 			while(true) {
 				synchronized (data) {
+					if (data.hasRequest()) {
+						arduinoConnector.send(data.getRequestDescription());
+					}
 					arduinoConnector.send(data.personDetected + ";" + data.lightLevel);
 					data.updateArduinoData(arduinoConnector.read());
 					Thread.sleep(period);
@@ -103,12 +110,8 @@ public class ServiceController implements Service{
 		throw new UnknownHostException("Cannot find a valid WLAN address");
 	}
 	
-	private HttpResponse getTelemetry() {
-		final String response = data.status + ";" + data.hours + ";" + data.mins + ";" + (data.lightOn ? "1" : "0") + ";" + data.rollerBlind;
-		return new HttpResponse(200, response.length(), response);
-	}
-	
 	private class Database {
+		public Optional<String> request = Optional.empty();
 		public boolean personDetected = false;
 		public boolean lightOn = false;
 		public int lightLevel = 0;
@@ -151,6 +154,52 @@ public class ServiceController implements Service{
 				rollerBlind = Integer.parseInt(parameters[4]);
 				lightOn = parameters[3].compareTo("1") == 0 ? true : false;
 			}
+		}
+		
+		private HttpResponse putAccessRequest(final Optional<String> postData) {
+			if (postData.isEmpty()) {
+				final String response = "Java Error: post data is empty";
+				return new HttpResponse(400, response.length(), response);
+			}
+			final Map<String, String> postArgs = new HashMap<>();
+			HttpRequestObject.parseQuery(postArgs, postData.get());
+			String request = "";
+			for (Map.Entry<String, String> entry : postArgs.entrySet()) {
+				request += entry.getValue() + ";";
+			}
+			request = request.substring(0, request.length()-2);
+			
+			synchronized(this) {
+				this.request = Optional.of(request);
+			}
+			
+			final String response = "Settings successfully applied.";
+			return new HttpResponse(200, response.length(), response);
+		}
+		
+		public boolean hasRequest() {
+			boolean result = false;
+			synchronized(this) {
+				result = request.isPresent();
+			}
+			return result;
+		}
+		
+		public String getRequestDescription() {
+			String req = "";
+			synchronized(this) {
+				if (request.isEmpty()) {
+					req = "";
+				}
+				req = request.get();
+				request = Optional.empty();
+			}
+			return req;
+		}
+		
+		private HttpResponse getData() {
+			final String response = data.status + ";" + data.hours + ";" + data.mins + ";" + (data.lightOn ? "1" : "0") + ";" + data.rollerBlind;
+			return new HttpResponse(200, response.length(), response);
 		}
 	}
 }
