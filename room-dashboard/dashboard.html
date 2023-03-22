@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>Smart Room Dashboard</title>
-        <link rel="stylesheet" href="assets/bootstrap.min.css"/>
+        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css"/>
         <link rel="stylesheet" href="dashboard.css"/>
 		<script src="assets/chart.js"></script>
 		<script src="dashboard.js"></script>
@@ -11,8 +11,8 @@
 		<div class="container">
 			<div class ="row">
 				<h2>Smart Room Dashboard</h2>
-				<p id="time">Time:</p><br/> 
-				<p id="status">Status:</p>
+				<p id="lblTime">Time:</p><br/> 
+				<p id="lblStatus">Status:</p>
 			</div>
 			<div class ="row">
 				<div class="col-md-8">
@@ -21,39 +21,39 @@
 							<div class="col-3" style="margin-top: 5px">
 								<p><b>Manual control</b></p>
 								<div class="form-group">
-									<label for="switch">Lights: </label>
-									<label class="switch" id="switch">
-										<input type="checkbox" id="slight" onclick="formOnClick()">
+									<label for="swtLight">Lights: </label>
+									<label class="switch" id="swtLight">
+										<input type="checkbox" id="chkLight" onclick="formOnClick()">
 										<span class="slider round"></span>
 									</label><br>
-									<label for="rollerblind">Rollerblinds: </label>
-									<input type="number" id="rollerblind" value="0" min="0" max="100" onclick="formOnClick()">
+									<label for="nmbRoll">Rollerblinds: </label>
+									<input type="number" id="nmbRoll" value="0" min="0" max="100" onclick="formOnClick()">
 									<br>
-									<button type="submit" id="btnApply" value="Apply" onclick="applyOnClick()">Apply</button>
+									<button type="submit" id="btnApply" value="Apply" onclick="applyOnClick()" disabled>Apply</button>
 									<button id="btnRelease" value="Release" onclick="releaseOnClick()" disabled>Release</button>
 									<br>
-									<small id="msg"></small>
+									<small id="lblMessage"></small>
 								</div>
 							</div>
 							<div class="col-1">
 								<div class="led-box">
-									<div class="led-green" id="pled"></div>
+									<div class="led-green" id="extLed"></div>
 								</div>
 							</div>
 							<div class="col-2">
 								<div class="progress blue">
 									<span class="progress-left">
-										<span class="progress-bar" id="pleft"></span>
+										<span class="progress-bar" id="extLeft"></span>
 									</span>
 									<span class="progress-right">
-										<span class="progress-bar" id="pright"></span>
+										<span class="progress-bar" id="extRight"></span>
 									</span>
-									<div class="progress-value" id="pvalue">0%</div>
+									<div class="progress-value" id="extValue">0%</div>
 								</div>
 							</div>
 							<div class="col-6">
 								<div class="progress vertical">
-									<div class="progress-bar bg-warning" id="pbar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>  
+									<div class="progress-bar bg-warning" id="extBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">0%</div>  
 								</div>
 							</div>
 						</div>
@@ -66,8 +66,8 @@
 				</div>
 			</div>
 		</div>
-		<script src="assets/bootstrap.min.js"></script>
+		<script src="assets/bootstrap/js/bootstrap.min.js"></script>
 		<script src="graph.js"></script>
-		<script>//runtime()</script>
+		<script>runtime()</script>
     </body>
 </html>

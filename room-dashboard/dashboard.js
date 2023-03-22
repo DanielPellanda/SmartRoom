@@ -2,19 +2,19 @@ const status_auto = 0;
 const status_dash = 1;
 const status_mobile = 2;
 
-let id_left = "pleft";
-let id_right = "pright"
-let id_value = "pvalue";
-let id_led = "pled";
-let id_bar = "pbar";
-let id_time = "time";
-let id_status = "status";
+let id_left = "extLeft";
+let id_right = "extRight"
+let id_value = "extValue";
+let id_led = "extLed";
+let id_bar = "extBar";
+let id_time = "lblTime";
+let id_status = "lblStatus";
 let id_graph = "lightChart";
-let id_switch = "slight";
-let id_roll = "rollerblind";
+let id_switch = "chkLight";
+let id_roll = "nmbRoll";
 let id_button = "btnApply";
 let id_btn_release = "btnRelease";
-let id_btn_label = "msg";
+let id_btn_label = "lblMessage";
 
 let last_det_time = null;
 let current_time = null;
@@ -40,10 +40,12 @@ function updateStatus(status) {
 			document.getElementById(id_status).innerHTML = "Status: <b>AUTO</b>";
 			system_time_ctrl_obtained = 0;
 			document.getElementById(id_btn_release).disabled = true;
+			document.getElementById(id_button).disabled = false;
 			break;
 		case status_dash:
 			document.getElementById(id_status).innerHTML = "Status: <b>DASHBOARD CONTROL</b>";
 			document.getElementById(id_btn_release).disabled = false;
+			document.getElementById(id_button).disabled = false;
 			if (applyPressed) {
 				system_time_ctrl_obtained = Date.now();
 				applyPressed = false;
@@ -52,11 +54,13 @@ function updateStatus(status) {
 		case status_mobile:
 			document.getElementById(id_status).innerHTML = "Status: <b>MOBILE APP CONTROL</b>";
 			document.getElementById(id_btn_release).disabled = true;
+			document.getElementById(id_button).disabled = true;
 			system_time_ctrl_obtained = 0;
 			break;
 		default:
 			document.getElementById(id_status).innerHTML = "Status: <b>Unknown</b>";
 			document.getElementById(id_btn_release).disabled = true;
+			document.getElementById(id_button).disabled = true;
 			system_time_ctrl_obtained = 0;
 			break;
 	}
@@ -194,7 +198,7 @@ function releaseOnClick() {
 function releaseControlLock() {
 	var req = new XMLHttpRequest();
 	req.open("POST", "accessControl", true);
-	req.send("status="+status_auto);
+	req.send("status="+status_auto+"&light=0&roll=0");
 }
 
 function diff_minutes(dt2, dt1) {
