@@ -9,7 +9,7 @@
 
 #define DARK 50
 #define ROLLED_UP 0
-#define UNROLLED 180
+#define UNROLLED 100
 #define WAKEUP 8
 #define SLEEP 19
 #define DELAY_SERVO 50
