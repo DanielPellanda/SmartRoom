@@ -19,14 +19,14 @@ void RoomControlTask::init(int period, ClockTask* clockTask, CommunicationTask* 
 }
 
 void RoomControlTask::angle(int angle) {
-  if (angle < ROLLED_UP || angle > UNROLLED) {
+  if (angle > ROLLED_UP || angle < UNROLLED) {
     return;
   }
   *currAngle = angle;
 
   float coeff = (2250.0-750.0)/180;
   servo->attach(servoPin);
-  servo->write(750 + angle*coeff);
+  servo->write(750 + angle*coeff*1.8);
   delay(DELAY_SERVO);
   servo->detach();
 }
