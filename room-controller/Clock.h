@@ -2,8 +2,8 @@
 #define __CLOCK__
 
 #define HRS_FORMAT 24
-#define MINUTES 60
-#define SKIP 5
+#define HOUR 60
+#define SKIP 3
 
 class Clock {
   int hours;

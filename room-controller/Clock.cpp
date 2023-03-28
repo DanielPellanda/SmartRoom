@@ -14,8 +14,9 @@ int Clock::getMinute() {
 }
 
 void Clock::clockTick() {
-  this->minutes = (this->minutes + SKIP) % MINUTES;
-  if(this->minutes == 0){
+  this->minutes += SKIP;
+  if(this->minutes >= HOUR){
     this->hours = (this->hours + 1) % HRS_FORMAT;
+    this->minutes =  this->minutes % HOUR;
   }
 }
