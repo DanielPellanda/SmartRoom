@@ -6,6 +6,10 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
+    <string name="light_switch_label">Lights ON/OFF</string>
+    <string name="roller_blind_text_label">Roller Blinds</string>
+    <string name="button_apply_text">APPLY</string>
+    <string name="button_release_text">RELEASE</string>
 
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
