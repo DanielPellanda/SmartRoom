@@ -7,7 +7,8 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="light_switch_label">Lights ON/OFF</string>
-    <string name="roller_blind_text_label">Roller Blinds</string>
+    <string name="roller_blind_text_label">Rollerblinds</string>
+    <string name="status_text_label">Status:</string>
     <string name="button_apply_text">APPLY</string>
     <string name="button_release_text">RELEASE</string>
 
