@@ -11,7 +11,7 @@
     <string name="label_status_string">Status: </string>
     <!-- Loading fragment -->
     <string name="load_fragment_string">Load fragment</string>
-    <string name="label_load_str_init">Grant Bluetooth permissions\nto continue.</string>
+    <string name="label_load_str_init">You need to grant Bluetooth permissions\nto continue.</string>
     <string name="label_load_str_pair">Attempting to pair with Arduino...</string>
     <string name="label_load_str_fail">Something went wrong.\nClose the app and try again.</string>
 
