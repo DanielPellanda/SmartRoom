@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragment.form.FormFragment">
+
+    <Button
+        android:id="@+id/button_release"
+        android:layout_width="124dp"
+        android:layout_height="48dp"
+        android:backgroundTint="@color/red"
+        android:text="@string/button_release_string"
+        app:layout_constraintBottom_toBottomOf="@+id/button_apply"
+        app:layout_constraintEnd_toEndOf="@+id/switch_light"
+        app:layout_constraintTop_toTopOf="@+id/button_apply"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="TextContrastCheck" />
+
+    <Button
+        android:id="@+id/button_apply"
+        android:layout_width="124dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="60dp"
+        android:backgroundTint="@color/blue"
+        android:text="@string/button_apply_string"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/button_release"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/switch_light"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.771" />
+
+    <TextView
+        android:id="@+id/label_rollb"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:labelFor="@id/seekbar_rollb"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:text="@string/rollb_label_string"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekbar_rollb"
+        app:layout_constraintEnd_toStartOf="@+id/seekbar_rollb"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/switch_light"
+        app:layout_constraintTop_toTopOf="@+id/seekbar_rollb"
+        app:layout_constraintVertical_bias="0.513" />
+
+    <androidx.appcompat.widget.SwitchCompat
+        android:id="@+id/switch_light"
+        android:layout_width="310dp"
+        android:layout_height="48dp"
+        android:text="@string/switch_light_string"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.269" />
+
+    <SeekBar
+        android:id="@+id/seekbar_rollb"
+        android:layout_width="197dp"
+        android:layout_height="57dp"
+        android:layout_marginTop="12dp"
+        app:layout_constraintEnd_toEndOf="@+id/switch_light"
+        app:layout_constraintTop_toBottomOf="@+id/switch_light" />
+
+    <TextView
+        android:id="@+id/label_status"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:text="@string/label_status_string"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/text_status"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/switch_light"
+        app:layout_constraintTop_toTopOf="@+id/text_status" />
+
+    <TextView
+        android:id="@+id/text_status"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="68dp"
+        android:layout_marginBottom="28dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/switch_light"
+        app:layout_constraintEnd_toEndOf="@+id/switch_light" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

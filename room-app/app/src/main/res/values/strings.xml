@@ -1,17 +1,18 @@
 <resources>
-    <string name="app_name">Room Mobile App</string>
-    <string name="action_settings">Settings</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-    <string name="light_switch_label">Lights ON/OFF</string>
-    <string name="roller_blind_text_label">Rollerblinds</string>
-    <string name="status_text_label">Status:</string>
-    <string name="button_apply_text">APPLY</string>
-    <string name="button_release_text">RELEASE</string>
+    <string name="app_title">Room Mobile App</string>
 
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <!-- GUI Strings -->
+    <!-- Form fragment -->
+    <string name="form_fragment_string">Form fragment</string>
+    <string name="button_apply_string">Apply</string>
+    <string name="button_release_string">Release</string>
+    <string name="rollb_label_string">Rollerblinds</string>
+    <string name="switch_light_string">Lights ON/OFF</string>
+    <string name="label_status_string">Status: </string>
+    <!-- Loading fragment -->
+    <string name="load_fragment_string">Load fragment</string>
+    <string name="label_load_str_init">Grant Bluetooth permissions\nto continue.</string>
+    <string name="label_load_str_pair">Attempting to pair with Arduino...</string>
+    <string name="label_load_str_fail">Something went wrong.\nClose the app and try again.</string>
+
 </resources>
