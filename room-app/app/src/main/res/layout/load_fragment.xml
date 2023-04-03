@@ -8,7 +8,7 @@
 
 
     <RelativeLayout
-        android:id="@+id/progbar_load"
+        android:id="@+id/progbar_layout"
         android:layout_width="54dp"
         android:layout_height="54dp"
         android:layout_marginTop="140dp"
