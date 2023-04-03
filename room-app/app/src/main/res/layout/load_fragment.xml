@@ -8,7 +8,7 @@
 
 
     <RelativeLayout
-        android:id="@+id/progbar_loading"
+        android:id="@+id/progbar_load"
         android:layout_width="54dp"
         android:layout_height="54dp"
         android:layout_marginTop="140dp"
@@ -19,14 +19,15 @@
         app:layout_constraintTop_toBottomOf="@+id/label_load">
 
         <ProgressBar
+            android:id="@+id/progbar_load"
             style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:indeterminate="true"
+            app:layout_constraintBottom_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
-            app:layout_constraintBottom_toTopOf="parent"/>
+            app:layout_constraintTop_toBottomOf="parent" />
     </RelativeLayout>
 
     <TextView
