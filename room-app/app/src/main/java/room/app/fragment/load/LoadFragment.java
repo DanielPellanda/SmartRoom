@@ -1,35 +1,36 @@
 package room.app.fragment.load;
 
-import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import java.io.IOException;
+
+import room.app.Config;
 import room.app.R;
+import room.app.bluetooth.BluetoothCommsThread;
 import room.app.databinding.LoadFragmentBinding;
 
 public class LoadFragment extends Fragment {
     private enum Status {INIT, PAIR, FAIL, UNSUPP}
     private static final long MILLIS_AFTER_BT_DEV_PICKER = 3000;
-
-    private Status current_status = Status.INIT;
-    //private BluetoothAdapter btAdapter;
+    private boolean connectionSuccessful = false;
+    private BluetoothAdapter btAdapter;
     private BluetoothDevice devicePicked;
     private Intent btDevicePicker;
     private LoadFragmentBinding binding;
@@ -45,9 +46,8 @@ public class LoadFragment extends Fragment {
     };
 
     private void updateComponents(final Status new_status) {
-        String text = "";
+        String text;
         int visibility = View.INVISIBLE;
-        current_status = new_status;
         switch (new_status) {
             case PAIR:
                 text = String.valueOf(R.string.label_load_str_pair);
@@ -80,24 +80,12 @@ public class LoadFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (BluetoothAdapter.getDefaultAdapter() == null) {
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (btAdapter == null) {
             updateComponents(Status.UNSUPP);
             return;
         }
-        /*
-        if (!btAdapter.isEnabled()) {
-            final Intent enableBt = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            final ActivityResultLauncher<Intent> checkResult = registerForActivityResult(new StartActivityForResult(),
-                    result -> {
-                        if (result.getResultCode() != Activity.RESULT_OK) {
-                            updateComponents(Status.FAIL);
-                        }
-                    });
-            checkResult.launch(enableBt);
-            if (current_status == Status.FAIL) {
-                return;
-            }
-        }*/
+
         final IntentFilter devicePickFilter = new IntentFilter("android.bluetooth.devicepicker.action.DEVICE_SELECTED");
         requireActivity().registerReceiver(eventListener, devicePickFilter);
 
@@ -109,17 +97,25 @@ public class LoadFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (devicePicked == null) {
-            new Handler().postDelayed(() -> startActivity(btDevicePicker), 3000);
+        if (btAdapter == null){
             return;
         }
-        updateComponents(Status.PAIR);
+        if (devicePicked == null) {
+            new Handler().postDelayed(() -> startActivity(btDevicePicker), MILLIS_AFTER_BT_DEV_PICKER);
+            return;
+        }
+        requireActivity().runOnUiThread(() -> updateComponents(Status.PAIR));
+        final BluetoothCommsThread btConnector = new BluetoothCommsThread(devicePicked, btAdapter);
+        btConnector.run(this::testConnection);
+        if (!connectionSuccessful) {
+            requireActivity().runOnUiThread(() -> updateComponents(Status.FAIL));
+            btConnector.cancel();
+            return;
+        }
+        final Bundle b = new Bundle();
+        b.putParcelable("bluetooth", btConnector);
+        getParentFragmentManager().setFragmentResult("bluetooth", b);
         NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
     }
 
     @Override
@@ -132,5 +128,16 @@ public class LoadFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    private void testConnection(final BluetoothSocket socket) {
+        try {
+            socket.getOutputStream();
+            socket.getInputStream();
+            Log.i(Config.TAG, "Connection successful!");
+            connectionSuccessful = true;
+        } catch (IOException e) {
+            Log.e(Config.TAG, "Error occurred when creating output stream", e);
+        }
     }
 }
