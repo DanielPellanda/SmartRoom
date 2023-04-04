@@ -22,7 +22,7 @@ class MsgServiceBT {
     /**
     * sends msg via bluetooth
     */
-    bool sendMsg(String msg);
+    void sendMsg(String msg);
 
   private:
     enum {REQ, LIGHT, RB};
