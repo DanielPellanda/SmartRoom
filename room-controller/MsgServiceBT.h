@@ -8,6 +8,7 @@
 #define NUM_PARAM 3
 #define SEP ';'
 #define END_COMM '\n'
+#define TIMEOUT 10
 
 class MsgServiceBT {
   public: 
@@ -28,6 +29,7 @@ class MsgServiceBT {
     SoftwareSerial* channel = nullptr;
     String parsedMsg[NUM_PARAM];
     RemoteConfig* btConfig = nullptr;
+    int failedComm;
   
     void clearMsg(){
       for (int i = 0; i < NUM_PARAM; i ++ ){
