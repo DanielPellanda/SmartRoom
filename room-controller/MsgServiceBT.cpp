@@ -19,7 +19,7 @@ void MsgServiceBT::receiveMsg(){
   int i = 0;
   !channel->available() ? failedComm++ : failedComm = 0;
   if (failedComm == TIMEOUT) {
-    btConfig->setConfig(0,0,0);
+    btConfig->setConfig("0","0","0");
   }
   while (channel->available()) {
     char ch = (char) channel->read();
