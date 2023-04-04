@@ -7,19 +7,20 @@ MsgServiceBT::MsgServiceBT(int rxPin, int txPin, RemoteConfig* conf){
 
 void MsgServiceBT::init(){
   channel->begin(9600);
+  failedComm = 0;
   clearMsg();
 }
 
-bool MsgServiceBT::sendMsg(String msg){
-  if(channel->available()){
-    channel->println(msg);
-    return true;
-  }
-  return false;
+void MsgServiceBT::sendMsg(String msg){
+  channel->println(msg);
 }
 
 void MsgServiceBT::receiveMsg(){
   int i = 0;
+  !channel->available() ? failedComm++ : failedComm = 0;
+  if (failedComm == TIMEOUT) {
+    btConfig->setConfig(0,0,0);
+  }
   while (channel->available()) {
     char ch = (char) channel->read();
     switch(ch){
