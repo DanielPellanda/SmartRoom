@@ -11,7 +11,11 @@ void MsgServiceBT::init(){
 }
 
 bool MsgServiceBT::sendMsg(String msg){
-  channel->println(msg);  
+  if(channel->available()){
+    channel->println(msg);
+    return true;
+  }
+  return false;
 }
 
 void MsgServiceBT::receiveMsg(){
