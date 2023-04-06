@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/LoadFragment"
-        android:name="room.app.fragment.load.LoadFragment"
+        android:name="room.app.fragment.LoadFragment"
         android:label="@string/load_fragment_string"
         tools:layout="@layout/load_fragment">
 
@@ -18,7 +18,7 @@
 
     <fragment
         android:id="@+id/FormFragment"
-        android:name="room.app.fragment.form.FormFragment"
+        android:name="room.app.fragment.FormFragment"
         android:label="@string/form_fragment_string"
         tools:layout="@layout/form_fragment">
 

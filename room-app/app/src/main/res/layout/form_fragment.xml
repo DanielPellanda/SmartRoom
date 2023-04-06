@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragment.form.FormFragment">
+    tools:context=".fragment.FormFragment">
 
     <Button
         android:id="@+id/button_release"
         android:layout_width="124dp"
         android:layout_height="48dp"
         android:backgroundTint="@color/red"
+        android:enabled="false"
         android:text="@string/button_release_string"
         app:layout_constraintBottom_toBottomOf="@+id/button_apply"
         app:layout_constraintEnd_toEndOf="@+id/switch_light"
@@ -24,6 +25,7 @@
         android:layout_height="48dp"
         android:layout_marginEnd="60dp"
         android:backgroundTint="@color/blue"
+        android:enabled="false"
         android:text="@string/button_apply_string"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/button_release"
@@ -66,6 +68,7 @@
         android:layout_width="197dp"
         android:layout_height="57dp"
         android:layout_marginTop="12dp"
+        android:max="100"
         app:layout_constraintEnd_toEndOf="@+id/switch_light"
         app:layout_constraintTop_toBottomOf="@+id/switch_light" />
 
@@ -74,27 +77,41 @@
         style="@style/Widget.AppCompat.TextView.SpinnerItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginBottom="68dp"
         android:paddingStart="0dp"
         android:paddingEnd="0dp"
         android:text="@string/label_status_string"
         android:textSize="15sp"
-        app:layout_constraintEnd_toStartOf="@+id/text_status"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/switch_light"
-        app:layout_constraintTop_toTopOf="@+id/text_status" />
+        app:layout_constraintBottom_toBottomOf="@+id/switch_light"
+        app:layout_constraintStart_toStartOf="@+id/switch_light" />
 
     <TextView
         android:id="@+id/text_status"
         style="@style/Widget.AppCompat.TextView.SpinnerItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="68dp"
-        android:layout_marginBottom="28dp"
+        android:layout_marginStart="216dp"
         android:paddingStart="0dp"
         android:paddingEnd="0dp"
         android:textSize="15sp"
-        app:layout_constraintBottom_toTopOf="@+id/switch_light"
-        app:layout_constraintEnd_toEndOf="@+id/switch_light" />
+        app:layout_constraintBottom_toBottomOf="@+id/label_status"
+        app:layout_constraintEnd_toEndOf="@+id/switch_light"
+        app:layout_constraintStart_toEndOf="@+id/label_status"
+        app:layout_constraintTop_toTopOf="@+id/label_status" />
+
+    <TextView
+        android:id="@+id/text_rollb"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekbar_rollb"
+        app:layout_constraintEnd_toEndOf="@+id/seekbar_rollb"
+        app:layout_constraintHorizontal_bias="0.487"
+        app:layout_constraintStart_toStartOf="@+id/seekbar_rollb"
+        app:layout_constraintTop_toTopOf="@+id/seekbar_rollb"
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

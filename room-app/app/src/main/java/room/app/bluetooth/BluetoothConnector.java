@@ -4,11 +4,7 @@ import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
-
-import androidx.annotation.NonNull;
 
 import java.io.IOException;
 import java.util.function.Consumer;
@@ -17,14 +13,16 @@ import room.app.Config;
 
 @SuppressLint("ParcelCreator")
 @SuppressWarnings("MissingPermission")
-public class BluetoothCommsThread extends Thread implements Parcelable{
+public class BluetoothConnector extends Thread {
+    public static final BluetoothAdapter BLUETOOTH_ADAPTER = BluetoothAdapter.getDefaultAdapter();
+    private final Consumer<BluetoothSocket> handler;
+    private Runnable disconnectionHandle = null;
     private final BluetoothSocket socket;
-    private final BluetoothAdapter btAdapter;
 
-    public BluetoothCommsThread(final BluetoothDevice device, final BluetoothAdapter btAdapter) {
+    public BluetoothConnector(final BluetoothDevice device, final Consumer<BluetoothSocket> handler) {
         // Use a temporary object that is later assigned to socket
         // because socket is final.
-        this.btAdapter = btAdapter;
+        this.handler = handler;
 
         BluetoothSocket tmp = null;
 
@@ -38,9 +36,19 @@ public class BluetoothCommsThread extends Thread implements Parcelable{
         socket = tmp;
     }
 
-    public void run(final Consumer<BluetoothSocket> handler) {
+    public BluetoothConnector(final BluetoothDevice device, final Consumer<BluetoothSocket> handler, final Runnable disconnectionHandle) {
+        this(device, handler);
+        this.disconnectionHandle = disconnectionHandle;
+    }
+
+    public static boolean isBluetoothUnspported() {
+        return BLUETOOTH_ADAPTER == null;
+    }
+
+    @Override
+    public void run() {
         // Cancel discovery because it otherwise slows down the connection.
-        btAdapter.cancelDiscovery();
+        BLUETOOTH_ADAPTER.cancelDiscovery();
 
         try {
             // Connect to the remote device through the socket. This call blocks
@@ -49,10 +57,9 @@ public class BluetoothCommsThread extends Thread implements Parcelable{
         } catch (IOException connectException) {
             Log.e(Config.TAG, "unable to connect");
             // Unable to connect; close the socket and return.
-            try {
-                socket.close();
-            } catch (IOException closeException) {
-                Log.e(Config.TAG, "Could not close the client socket", closeException);
+            cancel();
+            if (disconnectionHandle != null) {
+                disconnectionHandle.run();
             }
             return;
         }
@@ -68,14 +75,5 @@ public class BluetoothCommsThread extends Thread implements Parcelable{
         } catch (IOException e) {
             Log.e(Config.TAG, "Could not close the client socket", e);
         }
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(@NonNull Parcel parcel, int i) {
     }
 }
