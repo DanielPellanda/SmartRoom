@@ -7,6 +7,9 @@ import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 
+/**
+ * A class for handling the serial connection of Arduino.
+ */
 public class SerialChannel implements SerialPortEventListener {
 
 	private final SerialPort serialPort;

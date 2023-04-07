@@ -18,6 +18,9 @@ import room.service.channel.http.HttpRequestObject;
 import room.service.channel.http.HttpResponse;
 import room.service.channel.serial.SerialChannel;
 
+/**
+ * The main class that handles the server.
+ */
 public class ServiceController implements Service{
 	
 	private static final String IPV4_REGEX =
@@ -62,6 +65,9 @@ public class ServiceController implements Service{
 		}
 	}
 
+	/**
+	 * Begins the execution of the server.
+	 */
 	@Override
 	public void start() {
 		espConnector.start();
@@ -94,6 +100,11 @@ public class ServiceController implements Service{
 		arduinoConnector.close();
 	}
 	
+	/**
+	 * @return an InetAddress object for a network interface that satisfies the pattern specified in networkHost.
+	 * @throws UnknownHostException if there aren't available network interfaces that satisfy the requirement.
+	 * @throws SocketException if the socket encounters a problem.
+	 */
 	private InetAddress getWlanInterfaceAddress() throws UnknownHostException, SocketException {
 		final Pattern ipv4Pattern = Pattern.compile(IPV4_REGEX);
 		for (NetworkInterface ie : Collections.list(NetworkInterface.getNetworkInterfaces())) {
@@ -108,6 +119,9 @@ public class ServiceController implements Service{
 		throw new UnknownHostException("Cannot find a valid WLAN address");
 	}
 	
+	/**
+	 * A class that handles the data exchanges between the devices.
+	 */
 	private class Database {
 		private class Request {
 			public int status = 0;
@@ -123,6 +137,11 @@ public class ServiceController implements Service{
 		private int hours = 0;
 		private int mins = 0;
 		
+		/**
+		 * Updates the data related to the ESP component.
+		 * @param input a string of the data received.
+		 * @return an HttpResponse object that can be used as a response for the end receiver.
+		 */
 		public HttpResponse updateEspData(final Optional<String> input) {
 			if (input.isEmpty()) {
 				final String response = "<h1>Error 400</h1><br/>Bad request. Parameters not specified.";
@@ -144,6 +163,10 @@ public class ServiceController implements Service{
 			return new HttpResponse(200, response.length(), response);
 		}
 		
+		/**
+		 * Updates the data related to the Arduino component.
+		 * @param input a string of the data received.
+		 */
 		public void updateArduinoData(final String input) {
 			final String[] parameters = input.split(";");
 			if (parameters.length <= 5) {
@@ -159,6 +182,11 @@ public class ServiceController implements Service{
 			}
 		}
 		
+		/**
+		 * Handles the request from a device to take control of the room.
+		 * @param postData the new parameters to be applied for the room.
+		 * @return an HttpResponse object that can be used as a response for the end receiver.
+		 */
 		private HttpResponse putRequest(final Optional<String> postData) {
 			if (postData.isEmpty()) {
 				final String response = "Java Error: post data is empty";
@@ -183,10 +211,16 @@ public class ServiceController implements Service{
 			return new HttpResponse(200, response.length(), response);
 		}
 		
+		/**
+		 * @return a string with the data related to Arduino.
+		 */
 		private String getArduinoData() {
 			return request.status + ";" + request.light + ";" + request.rollerBlind + ";" + personDetected + ";" + lightLevel;
 		}
 		
+		/**
+		 * @return an HttpResponse to send to the dashboard for periodic update.
+		 */
 		private HttpResponse getDashboardData() {
 			final String response = data.status + ";" + data.hours + ";" + data.mins + ";" + (data.lightOn ? "1" : "0") + ";" + data.rollerBlind;
 			return new HttpResponse(200, response.length(), response);

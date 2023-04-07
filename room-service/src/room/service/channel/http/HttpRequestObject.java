@@ -13,6 +13,9 @@ import java.util.Map.Entry;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 
+/**
+ * A class used for handle http requests and data related to it.
+ */
 public class HttpRequestObject {
 	private final Map<String, String> uriParameters = new HashMap<>();
 	private final String path;
@@ -32,6 +35,10 @@ public class HttpRequestObject {
 		}
 	}
 	
+	/**
+	 * @param h the headers to parse.
+	 * @return a string with headers sent by parameters.
+	 */
 	public static String parseHeaders(final Headers h) {
 		String response = "";
 		for (Entry<String, List<String>> entry : h.entrySet()){
@@ -40,6 +47,11 @@ public class HttpRequestObject {
 		return response;
 	}
 	
+	
+	/**
+	 * @param parameters a map object where the query should be parsed.
+	 * @param query the string query to parse for uri parameters.
+	 */
 	public static void parseQuery(final Map<String, String> parameters, final String query) {
 		if (Optional.ofNullable(query).isEmpty()) {
 			return;
@@ -52,22 +64,37 @@ public class HttpRequestObject {
         }
 	}
 	
+	/**
+	 * @return a string with the uri requested.
+	 */
 	public String getPath() {
 		return path;
 	}
 	
+	/**
+	 * @return a string with the headers of the request.
+	 */
 	public String getHeaders() {
 		return headers;
 	}
 	
+	/**
+	 * @return a string with the post data of the request.
+	 */
 	public Optional<String> getPostData() {
 		return postData;
 	}
 	
+	/**
+	 * @return the get parameters of the request.
+	 */
 	public Map<String, String> getParameters() {
 		return uriParameters;
 	}
 	
+	/**
+	 * @return true if the request has parameters, false if not.
+	 */
 	public boolean hasParameters() {
 		return !uriParameters.isEmpty();
 	}
