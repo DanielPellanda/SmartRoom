@@ -25,6 +25,9 @@ import room.app.R;
 import room.app.bluetooth.BluetoothConnector;
 import room.app.databinding.FormFragmentBinding;
 
+/**
+ * Class used for describing the behaviour of the form fragment.
+ */
 public class FormFragment extends Fragment {
     private static final int BUFFER_SIZE = 1024;
     private static final int UPDATE_INTERVAL = 1000;

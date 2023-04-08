@@ -26,6 +26,9 @@ import room.app.R;
 import room.app.bluetooth.BluetoothConnector;
 import room.app.databinding.LoadFragmentBinding;
 
+/**
+ * Class used for describing the behaviour of the load fragment.
+ */
 public class LoadFragment extends Fragment {
     private enum Status {INIT, PAIR, ERROR, UNSUPPORTED, DISCONNECT}
     private static final long MILLIS_AFTER_BT_DEV_PICKER = 3000;

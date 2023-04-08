@@ -11,7 +11,9 @@ import java.util.function.Consumer;
 
 import room.app.Config;
 
-@SuppressLint("ParcelCreator")
+/**
+ * Class used for manage the connection between two bluetooth sockets.
+ */
 @SuppressWarnings("MissingPermission")
 public class BluetoothConnector extends Thread {
     public static final BluetoothAdapter BLUETOOTH_ADAPTER = BluetoothAdapter.getDefaultAdapter();
