@@ -68,6 +68,11 @@
 		</div>
 		<script src="assets/bootstrap/js/bootstrap.min.js"></script>
 		<script src="graph.js"></script>
-		<script>runtime()</script>
+		<script>
+			window.addEventListener("beforeunload", function(event) {
+				onWindowClose(event);
+			});
+			runtime();
+		</script>
     </body>
 </html>

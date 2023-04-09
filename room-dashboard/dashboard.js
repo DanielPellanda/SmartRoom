@@ -18,7 +18,7 @@ let id_btn_label = "lblMessage";
 
 let last_det_time = null;
 let current_time = null;
-let current_status = 0;
+let current_status = status_auto;
 let is_light_on = false;
 let form_interaction = false;
 let first_update = true;
@@ -31,6 +31,16 @@ let time_scheme = [];
 for (var i = 0; i < 24; i++) {
 	time_scheme.push(0);
 }
+
+let close_msg = "You're currently taking control of the room.\nAny unsaved changes will be lost, are you sure you want to leave?";
+let oldOnBeforeUnload = window.onbeforeunload;
+function onWindowClose(e) {
+	if (current_status == status_dash) {
+		releaseControlLock();
+		e.returnValue = close_msg;
+	}
+}
+
 //Updates the current status of the room and releted GUI elements
 function updateStatus(status) {
 	if (status == null) return;
@@ -180,6 +190,9 @@ function applyOnClick() {
 	applyPressed = true;
 	
 	var req = new XMLHttpRequest();
+	if (req == null) {
+		return;
+	}
 	req.onreadystatechange(function(){
 		document.getElementById(id_button).disabled = false;
 		document.getElementById(id_btn_release).disabled = false;
@@ -206,6 +219,9 @@ function releaseOnClick() {
 //Sends to the arduino the signal for releasing the lock and returning to the AUTO status
 function releaseControlLock() {
 	var req = new XMLHttpRequest();
+	if (req == null) {
+		return;
+	}
 	req.open("POST", "accessControl", true);
 	req.send("status="+status_auto+"&light=0&roll=0");
 }
@@ -222,7 +238,11 @@ function diff_minutes(dt2, dt1) {
 //Requests the data from the server and updates GUI elements
 function getDataFromServer() {
 	var req = new XMLHttpRequest();
+	if (req == null) {
+		return;
+	}
 	req.onload = function() {
+		console.log("Received from server:\n"+this.responseText);
 		updateGraph();
 		updateStatus(this.responseText.split(";")[0]);
 		updateTime(this.responseText.split(";")[1], this.responseText.split(";")[2]);
