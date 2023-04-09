@@ -18,7 +18,7 @@ let id_btn_label = "lblMessage";
 
 let last_det_time = null;
 let current_time = null;
-let current_status = 0;
+let current_status = status_auto;
 let is_light_on = false;
 let form_interaction = false;
 let first_update = true;
@@ -32,6 +32,16 @@ for (var i = 0; i < 24; i++) {
 	time_scheme.push(0);
 }
 
+let close_msg = "You're currently taking control of the room.\nAny unsaved changes will be lost, are you sure you want to leave?";
+let oldOnBeforeUnload = window.onbeforeunload;
+function onWindowClose(e) {
+	if (current_status == status_dash) {
+		releaseControlLock();
+		e.returnValue = close_msg;
+	}
+}
+
+//Updates the current status of the room and releted GUI elements
 function updateStatus(status) {
 	if (status == null) return;
 	current_status = status;
@@ -66,6 +76,7 @@ function updateStatus(status) {
 	}
 }
 
+//Updates the current opening of the room rollerblind and releted GUI elements
 function updateRollerBlind(value) {
 	let percentage = value;
 	if (isNaN(value)) {
@@ -89,6 +100,7 @@ function updateRollerBlind(value) {
 	document.getElementById(id_value).innerHTML = Math.round(percentage) + "%";
 }
 
+//Updates the current status of the room light and releted GUI elements
 function updateLight(is_on) {
 	if (is_on == 1) {
 		document.getElementById(id_led).style.backgroundColor = "#ABFF00";
@@ -106,7 +118,8 @@ function updateLight(is_on) {
 		}
 	}
 }
-	
+
+//Updates the current amounth of light detected by the photoresister
 function updateLightLvl(value) {
 	if (value != null) {
 		document.getElementById(id_bar).style.width = value + "%";
@@ -114,6 +127,7 @@ function updateLightLvl(value) {
 	}
 }
 
+//Updates the current time of the arduino
 function updateTime(hour, min) {
 	if (!isNaN(hour) && !isNaN(min)) {
 		if (hour < 24 && hour >= 0 && min < 60 && min >= 0) {
@@ -131,6 +145,7 @@ function updateTime(hour, min) {
 	}
 }
 
+//Updates the time graph with the current values
 function updateGraph() {
 	if (!first_update && is_light_on) {
 		var mins_passed = diff_minutes(current_time,last_det_time);
@@ -155,10 +170,12 @@ function updateGraph() {
 	}
 }
 
+//Event listener that responds when the form is clicked
 function formOnClick() {
 	form_interaction = true;
 }
 
+//Event listener that responds when the button apply is clicked
 function applyOnClick() {
 	var confirmation_msg_reset = 3 * 1000;
 	var roll = document.getElementById(id_roll).value;
@@ -173,6 +190,9 @@ function applyOnClick() {
 	applyPressed = true;
 	
 	var req = new XMLHttpRequest();
+	if (req == null) {
+		return;
+	}
 	req.onreadystatechange(function(){
 		document.getElementById(id_button).disabled = false;
 		document.getElementById(id_btn_release).disabled = false;
@@ -189,18 +209,24 @@ function applyOnClick() {
 	req.send("status="+status_dash+"&light="+light+"&roll="+roll);
 }
 
+//Event listener that responds when the button release is clicked
 function releaseOnClick() {
 	if (current_status == status_dash) {
 		system_time_ctrl_obtained = 1;
 	}
 }
 
+//Sends to the arduino the signal for releasing the lock and returning to the AUTO status
 function releaseControlLock() {
 	var req = new XMLHttpRequest();
+	if (req == null) {
+		return;
+	}
 	req.open("POST", "accessControl", true);
 	req.send("status="+status_auto+"&light=0&roll=0");
 }
 
+//Utility function used for calcolate the minutes difference between 2 Date types
 function diff_minutes(dt2, dt1) {
 	if (dt2 == null || dt1 == null) return 0;
 	
@@ -209,9 +235,14 @@ function diff_minutes(dt2, dt1) {
 	return Math.abs(Math.round(diff));  
 }
 
+//Requests the data from the server and updates GUI elements
 function getDataFromServer() {
 	var req = new XMLHttpRequest();
+	if (req == null) {
+		return;
+	}
 	req.onload = function() {
+		console.log("Received from server:\n"+this.responseText);
 		updateGraph();
 		updateStatus(this.responseText.split(";")[0]);
 		updateTime(this.responseText.split(";")[1], this.responseText.split(";")[2]);
@@ -224,6 +255,7 @@ function getDataFromServer() {
     req.send();
 }
 
+//Function that handles the runtime behaviour of the page, it executes once every clock tick.
 function runtime() {
 	getDataFromServer();
 	if (system_time_ctrl_obtained > 0 && (Date.now()-system_time_ctrl_obtained) >= control_lock_time) {
