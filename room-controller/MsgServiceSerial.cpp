@@ -14,7 +14,7 @@ MsgServiceSerial::MsgServiceSerial(SensorsReadings* sens, RemoteConfig* conf){
 }
 
 void MsgServiceSerial::sendMsg(String msg){
-  Serial.print(msg);  
+  Serial.println(msg);  
 }
 
 void clearMsg(){

@@ -21,8 +21,8 @@ public class HttpChannel {
 	
 	private final InetSocketAddress socketAddress;
 	private final HttpServer server;
-	
 	private final String servername;
+	
 	private boolean hasStarted = false;
 	
 	public HttpChannel (final String servername, final InetSocketAddress fullAddress) throws IOException{

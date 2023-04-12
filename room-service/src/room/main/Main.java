@@ -1,13 +1,12 @@
 package room.main;
 
-import room.service.Service;
-import room.service.ServiceController;
+import room.service.ServiceManager;
 
 public class Main {
 	
 	public static void main(final String[] args) {
-		final Service serv = new ServiceController();
-		serv.start();
+		ServiceManager manager = new ServiceManager();
+		manager.start();
 	}
 
 }
