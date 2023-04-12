@@ -75,7 +75,7 @@ public class FormFragment extends Fragment {
         if (btDevice == null) {
             return;
         }
-        backgroundUpdate = new BluetoothConnector(btDevice, this::extractData, () -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
+        backgroundUpdate = new BluetoothConnector(parentActivity, btDevice, this::extractData, () -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
         backgroundUpdate.start();
     }
 
@@ -110,7 +110,7 @@ public class FormFragment extends Fragment {
         if (btDevice == null) {
             return;
         }
-        final BluetoothConnector btConnection = new BluetoothConnector(btDevice, socket -> {
+        final BluetoothConnector btConnection = new BluetoothConnector(parentActivity, btDevice, socket -> {
             try {
                 final OutputStream outputStream = socket.getOutputStream();
                 final String[] data = {

@@ -88,7 +88,7 @@ public class LoadFragment extends Fragment {
     public void onViewCreated(@NonNull final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         parentActivity = requireActivity();
-        if (BluetoothConnector.isBluetoothUnspported()) {
+        if (BluetoothConnector.isBluetoothUnsupported()) {
             updateComponents(Status.UNSUPPORTED);
             return;
         }
@@ -104,15 +104,18 @@ public class LoadFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (BluetoothConnector.isBluetoothUnspported()){
+        if (BluetoothConnector.isBluetoothUnsupported()){
             return;
         }
         if (devicePicked == null) {
+            if (BluetoothConnector.areBluetoothPermissionDenied(parentActivity)) {
+                BluetoothConnector.requestBluetoothPermissions(parentActivity);
+            }
             new Handler().postDelayed(() -> startActivity(btDevicePicker), MILLIS_AFTER_BT_DEV_PICKER);
             return;
         }
         parentActivity.runOnUiThread(() -> updateComponents(Status.PAIR));
-        final BluetoothConnector btConnector = new BluetoothConnector(devicePicked, this::testConnection);
+        final BluetoothConnector btConnector = new BluetoothConnector(parentActivity, devicePicked, this::testConnection);
         btConnector.start();
         if (!connectionSuccessful) {
             requireActivity().runOnUiThread(() -> updateComponents(Status.ERROR));
