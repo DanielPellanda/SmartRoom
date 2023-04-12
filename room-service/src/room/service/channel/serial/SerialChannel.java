@@ -18,8 +18,6 @@ public class SerialChannel implements SerialPortEventListener {
 	
 	public SerialChannel() throws SerialPortException{
 		serialPort = new SerialPort(searchPort());
-		serialPort.openPort();
-		serialPort.closePort();
 	}
 	
 	public void start() throws SerialPortException{
@@ -30,7 +28,7 @@ public class SerialChannel implements SerialPortEventListener {
 		                     SerialPort.PARITY_NONE);
 		serialPort.setFlowControlMode(SerialPort.FLOWCONTROL_RTSCTS_IN | 
 		                              SerialPort.FLOWCONTROL_RTSCTS_OUT);
-		serialPort.addEventListener(this, SerialPort.MASK_RXCHAR);
+		serialPort.addEventListener(this);
 		hasStarted = true;
 		
 		System.out.println("Arduino channel starting on serial port " + serialPort.getPortName());
@@ -74,7 +72,7 @@ public class SerialChannel implements SerialPortEventListener {
         if(event.isRXCHAR() && event.getEventValue() > 0 && hasStarted) {
             try {
                 lastReceivedData = serialPort.readString(event.getEventValue());
-                System.out.print("Arduino -> " + lastReceivedData);
+                System.out.println("Arduino -> " + lastReceivedData);
             }
             catch (SerialPortException ex) {
                 System.err.println("Error in receiving string from COM-port: \n\t" + ex.toString());
@@ -85,7 +83,7 @@ public class SerialChannel implements SerialPortEventListener {
 	private String searchPort() {
 		 for (Object port : com.fazecast.jSerialComm.SerialPort.getCommPorts()) {
 			 if (port.toString().contains("Arduino Uno")) {
-				 return port.toString();
+				 return port.toString().substring(13, 17);
 			 }
 		 }
 		 return "null";
