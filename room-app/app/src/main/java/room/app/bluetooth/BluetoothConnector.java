@@ -73,7 +73,7 @@ public class BluetoothConnector extends Thread {
             return;
         }
         if (ActivityCompat.checkSelfPermission(contextActivity, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-            contextActivity.requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_PERMISSION_CONNECT);
+            contextActivity.requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_SCAN}, REQUEST_PERMISSION_CONNECT);
         }
     }
 
