@@ -90,7 +90,7 @@ public class BluetoothConnector extends Thread {
             // until it succeeds or throws an exception.
             socket.connect();
         } catch (IOException connectException) {
-            Log.e(Config.TAG, "unable to connect. Details:\n" + connectException.getMessage());
+            Log.e(Config.TAG, "Unable to connect. Details:\n" + connectException);
             // Unable to connect; close the socket and return.
             cancel();
             if (disconnectionHandle != null) {

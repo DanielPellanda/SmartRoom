@@ -112,11 +112,11 @@ public class LoadFragment extends Fragment {
             new Handler().postDelayed(() -> startActivity(btDevicePicker), MILLIS_AFTER_BT_DEV_PICKER);
             return;
         }
-        parentActivity.runOnUiThread(() -> updateComponents(Status.PAIR));
+        updateComponents(Status.PAIR);
         final BluetoothConnector btConnector = new BluetoothConnector(parentActivity, devicePicked, this::testConnection);
         btConnector.start();
         if (!connectionSuccessful) {
-            requireActivity().runOnUiThread(() -> updateComponents(Status.ERROR));
+            updateComponents(Status.ERROR);
             btConnector.cancel();
             return;
         }
@@ -124,7 +124,7 @@ public class LoadFragment extends Fragment {
         b.putParcelable(Config.REQUEST_BT_DEVICE_KEY, devicePicked);
         getParentFragmentManager().setFragmentResult(Config.REQUEST_BT_KEY, b);
         NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment);
-        parentActivity.runOnUiThread(() -> updateComponents(Status.DISCONNECT));
+        updateComponents(Status.DISCONNECT);
     }
 
     @Override
