@@ -57,7 +57,7 @@ class Database {
 	 */
 	public void updateArduinoData(final String input) {
 		final String[] parameters = input.split(";");
-		if (parameters.length <= 5) {
+		if (parameters.length < 5) {
 			return;
 		}
 		
