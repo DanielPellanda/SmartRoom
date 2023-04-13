@@ -18,6 +18,7 @@ class CommunicationTask : public Task {
   Clock* clock = nullptr;
   int* servoAngle;
   bool* lights;
+  const String sep = ";";
   
   public:
     CommunicationTask(RoomState* currState, int rxPin, int txPin);

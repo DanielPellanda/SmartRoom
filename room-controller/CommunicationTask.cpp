@@ -40,9 +40,9 @@ void CommunicationTask::tick() {
     default:
       break;
   }
-  lights ? light = "1" : light = "0";
-  msg = *currState + SEP + clock->getHour() + SEP + clock->getMinute() 
-    + SEP + light + SEP + *servoAngle ;
+  *lights ? light = "1" : light = "0";
+  msg = *currState + sep + clock->getHour() + sep + clock->getMinute()
+    + sep + light + sep + *servoAngle;
   btCommChannel->sendMsg(msg);
   serialCommChannel->sendMsg(msg);
 }
