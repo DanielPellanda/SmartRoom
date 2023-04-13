@@ -103,7 +103,7 @@ class Database {
 	 * @return a string with the data related to Arduino.
 	 */
 	public String getArduinoData() {
-		return request.status + ";" + request.light + ";" + request.rollerBlind + ";" + personDetected + ";" + lightLevel;
+		return request.status + ";" + (request.light ? "1" : "0") + ";" + request.rollerBlind + ";" + (personDetected ? "1" : "0") + ";" + lightLevel;
 	}
 	
 	/**
