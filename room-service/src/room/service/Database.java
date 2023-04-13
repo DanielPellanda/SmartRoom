@@ -67,7 +67,6 @@ class Database {
 				hours = Integer.parseInt(parameters[1]);
 				mins = Integer.parseInt(parameters[2]);
 				rollerBlind = Integer.parseInt(parameters[4]);
-				System.out.println("Rollerblind: " + parameters[4]);
 			} catch (NumberFormatException e) {
 				System.err.println("Received a not valid integer value....");
 			}
