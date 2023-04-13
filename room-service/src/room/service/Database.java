@@ -62,10 +62,15 @@ class Database {
 		}
 		
 		synchronized(this) {
-			status = Integer.parseInt(parameters[0]);
-			hours = Integer.parseInt(parameters[1]);
-			mins = Integer.parseInt(parameters[2]);
-			rollerBlind = Integer.parseInt(parameters[4]);
+			try {
+				status = Integer.parseInt(parameters[0]);
+				hours = Integer.parseInt(parameters[1]);
+				mins = Integer.parseInt(parameters[2]);
+				rollerBlind = Integer.parseInt(parameters[4]);
+				System.out.println("Rollerblind: " + parameters[4]);
+			} catch (NumberFormatException e) {
+				System.err.println("Received a not valid integer value....");
+			}
 			lightOn = parameters[3].compareTo("1") == 0 ? true : false;
 		}
 	}
