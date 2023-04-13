@@ -108,9 +108,7 @@ public class LoadFragment extends Fragment {
             return;
         }
         if (devicePicked == null) {
-            if (BluetoothConnector.areBluetoothPermissionDenied(parentActivity)) {
-                BluetoothConnector.requestBluetoothPermissions(parentActivity);
-            }
+            BluetoothConnector.requireBluetoothPermissions(parentActivity);
             new Handler().postDelayed(() -> startActivity(btDevicePicker), MILLIS_AFTER_BT_DEV_PICKER);
             return;
         }

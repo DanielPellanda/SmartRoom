@@ -11,11 +11,10 @@
     <string name="text_rollb_string">%d %</string>
     <!-- Loading fragment -->
     <string name="load_fragment_string">Load fragment</string>
-    <string name="label_load_str_init">You need to pair your arduino device\nto continue.</string>
-    <string name="label_load_str_pair">Pairing with Arduino device…</string>
+    <string name="label_load_str_init">Connect your arduino device\nto continue.</string>
+    <string name="label_load_str_pair">Testing connection…</string>
     <string name="label_load_str_fail">Something went wrong.\nClose the app and try again.</string>
     <string name="label_load_str_unsupp">Bluetooth is unsupported on your device.\nCannot continue.</string>
     <string name="label_load_str_disconn">Your device was disconnected. Try connecting it again.</string>
-
 
 </resources>

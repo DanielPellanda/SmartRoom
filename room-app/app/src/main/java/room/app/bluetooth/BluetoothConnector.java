@@ -41,9 +41,7 @@ public class BluetoothConnector extends Thread {
         try {
             // Get a BluetoothSocket to connect with the given BluetoothDevice.
             // MY_UUID is the app's UUID string, also used in the server code.
-            if (areBluetoothPermissionDenied(contextActivity)) {
-                requestBluetoothPermissions(contextActivity);
-            }
+            requireBluetoothPermissions(contextActivity);
             tmp = device.createRfcommSocketToServiceRecord(Config.DEFAULT_DEVICE_UUID);
         } catch (IOException e) {
             Log.e(Config.TAG, "Socket's create() method failed", e);
@@ -56,34 +54,37 @@ public class BluetoothConnector extends Thread {
         this.disconnectionHandle = disconnectionHandle;
     }
 
+    /**
+     * @return true if bluetooth is not supported in the current device, false if not.
+     */
     public static boolean isBluetoothUnsupported() {
         return BLUETOOTH_ADAPTER == null;
     }
 
-    public static boolean areBluetoothPermissionDenied(final Activity contextActivity) {
+    /**
+     * Checks if required bluetooth permissions are enabled. If they are not, they will be requested.
+     * @param contextActivity the activity of which permissions are required.
+     */
+    public static void requireBluetoothPermissions(final Activity contextActivity) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            return ActivityCompat.checkSelfPermission(contextActivity, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED
-                    || ActivityCompat.checkSelfPermission(contextActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
-        }
-        return ActivityCompat.checkSelfPermission(contextActivity, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED;
-    }
-
-    public static void requestBluetoothPermissions(final Activity contextActivity) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-            contextActivity.requestPermissions(new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.ACCESS_FINE_LOCATION}, LEGACY_REQUEST_PERMISSION_BLUETOOTH);
+            if (ActivityCompat.checkSelfPermission(contextActivity, Manifest.permission.BLUETOOTH) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(contextActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                contextActivity.requestPermissions(new String[]{Manifest.permission.BLUETOOTH, Manifest.permission.ACCESS_FINE_LOCATION}, LEGACY_REQUEST_PERMISSION_BLUETOOTH);
+            }
             return;
         }
-        contextActivity.requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_PERMISSION_CONNECT);
+        if (ActivityCompat.checkSelfPermission(contextActivity, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+            contextActivity.requestPermissions(new String[]{Manifest.permission.BLUETOOTH_CONNECT}, REQUEST_PERMISSION_CONNECT);
+        }
     }
 
     @Override
     public void run() {
-        if (areBluetoothPermissionDenied(contextActivity)) {
-            requestBluetoothPermissions(contextActivity);
+        if (socket == null) {
+            return;
         }
+        requireBluetoothPermissions(contextActivity);
         // Cancel discovery because it otherwise slows down the connection.
         BLUETOOTH_ADAPTER.cancelDiscovery();
-
         try {
             // Connect to the remote device through the socket. This call blocks
             // until it succeeds or throws an exception.
