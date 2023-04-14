@@ -38,8 +38,8 @@ public class SerialCommService implements CommService {
 							String msg = "";
 							try {
 								msg = arduinoConnector.receiveMsg();
-								data.updateArduinoData(msg);
 								System.out.println("Arduino -> " + msg);
+								data.updateArduinoData(msg);
 							} catch (InterruptedException e) {
 								System.err.println("Interrupted while waiting for serial data...");
 							} catch (ArrayIndexOutOfBoundsException ea) {
