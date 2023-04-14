@@ -1,5 +1,6 @@
 package room.app.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -53,22 +54,22 @@ public class LoadFragment extends Fragment {
         int visibility = View.INVISIBLE;
         switch (new_status) {
             case PAIR:
-                text = String.valueOf(R.string.label_load_str_pair);
+                text = getString(R.string.label_load_str_pair);
                 visibility = View.VISIBLE;
                 break;
             case ERROR:
-                text = String.valueOf(R.string.label_load_str_fail);
+                text = getString(R.string.label_load_str_fail);
                 break;
             case UNSUPPORTED:
-                text = String.valueOf(R.string.label_load_str_unsupp);
+                text = getString(R.string.label_load_str_unsupp);
                 break;
             case DISCONNECT:
-                text = String.valueOf(R.string.label_load_str_disconn);
+                text = getString(R.string.label_load_str_disconn);
                 visibility = View.VISIBLE;
                 break;
             case INIT:
             default:
-                text = String.valueOf(R.string.label_load_str_init);
+                text = getString(R.string.label_load_str_init);
                 break;
         }
         binding.labelLoad.setText(text);
@@ -101,22 +102,24 @@ public class LoadFragment extends Fragment {
         btDevicePicker.putExtra("android.bluetooth.devicepicker.extra.DEVICE_PICKER_LAUNCH_CLASS", eventListener.getClass().getName());
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onStart() {
         super.onStart();
         if (BluetoothConnector.isBluetoothUnsupported()){
             return;
         }
+        BluetoothConnector.requireBluetoothPermissions(parentActivity);
         if (devicePicked == null) {
-            BluetoothConnector.requireBluetoothPermissions(parentActivity);
             new Handler().postDelayed(() -> startActivity(btDevicePicker), MILLIS_AFTER_BT_DEV_PICKER);
             return;
         }
-        updateComponents(Status.PAIR);
+        Log.i(Config.TAG, "Device picked: " + devicePicked.getName());
+        parentActivity.runOnUiThread(() -> updateComponents(Status.PAIR));
         final BluetoothConnector btConnector = new BluetoothConnector(parentActivity, devicePicked, this::testConnection);
         btConnector.start();
         if (!connectionSuccessful) {
-            updateComponents(Status.ERROR);
+            parentActivity.runOnUiThread(() -> updateComponents(Status.ERROR));
             btConnector.cancel();
             return;
         }
@@ -124,7 +127,7 @@ public class LoadFragment extends Fragment {
         b.putParcelable(Config.REQUEST_BT_DEVICE_KEY, devicePicked);
         getParentFragmentManager().setFragmentResult(Config.REQUEST_BT_KEY, b);
         NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment);
-        updateComponents(Status.DISCONNECT);
+        parentActivity.runOnUiThread(() -> updateComponents(Status.DISCONNECT));
     }
 
     @Override

@@ -44,7 +44,6 @@ public class SerialCommService implements CommService {
 								System.err.println("Interrupted while waiting for serial data...");
 							} catch (ArrayIndexOutOfBoundsException ea) {
 								System.err.println("Couldn't read received output...");
-								System.out.println(msg);
 							}
 						}
 					}
