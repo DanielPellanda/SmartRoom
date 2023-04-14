@@ -19,7 +19,7 @@ void RoomControlTask::init(int period, ClockTask* clockTask, CommunicationTask* 
 }
 
 void RoomControlTask::angle(int angle) {
-  if (angle > ROLLED_UP || angle < UNROLLED) {
+  if (angle < ROLLED_UP || angle > UNROLLED) {
     return;
   }
   *currAngle = angle;
