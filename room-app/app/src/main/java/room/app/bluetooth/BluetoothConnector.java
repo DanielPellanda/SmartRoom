@@ -13,7 +13,6 @@ import android.util.Log;
 import androidx.core.app.ActivityCompat;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.function.Consumer;
 
 import room.app.Config;
@@ -30,7 +29,7 @@ public class BluetoothConnector extends Thread {
     private final Consumer<BluetoothSocket> handler;
     private Runnable disconnectionHandle = null;
     private final Activity contextActivity;
-    private BluetoothSocket socket;
+    private final BluetoothSocket socket;
 
     public BluetoothConnector(final Activity contextActivity, final BluetoothDevice device, final Consumer<BluetoothSocket> handler) {
         // Use a temporary object that is later assigned to socket
@@ -43,8 +42,8 @@ public class BluetoothConnector extends Thread {
             // Get a BluetoothSocket to connect with the given BluetoothDevice.
             // MY_UUID is the app's UUID string, also used in the server code.
             requireBluetoothPermissions(contextActivity);
-            //tmp = device.createRfcommSocketToServiceRecord(Config.DEFAULT_DEVICE_UUID);
-            tmp = (BluetoothSocket) device.getClass().getMethod("createRfcommSocket",  new Class<?>[] {Integer.TYPE}).invoke(device, new Object[]{1});
+            tmp = device.createRfcommSocketToServiceRecord(Config.DEFAULT_DEVICE_UUID);
+            //tmp = (BluetoothSocket) device.getClass().getMethod("createRfcommSocket", Integer.TYPE).invoke(device, 1);
         } catch (Exception e) {
             Log.e(Config.TAG, "Socket's create() method failed", e);
         }
@@ -86,7 +85,7 @@ public class BluetoothConnector extends Thread {
         }
         requireBluetoothPermissions(contextActivity);
         // Cancel discovery because it otherwise slows down the connection.
-        //BLUETOOTH_ADAPTER.cancelDiscovery();
+        BLUETOOTH_ADAPTER.cancelDiscovery();
 
         try {
             // Connect to the remote device through the socket. This call blocks
@@ -95,23 +94,27 @@ public class BluetoothConnector extends Thread {
         } catch (IOException connectException) {
             Log.e(Config.TAG, "Unable to connect. Details:\n" + connectException);
             // Unable to connect; close the socket and return.
-            cancel();
             if (disconnectionHandle != null) {
                 disconnectionHandle.run();
             }
+            cancel();
             return;
         }
         // The connection attempt succeeded. Perform work associated with
         // the connection in a separate thread.
         handler.accept(socket);
+        cancel();
     }
 
     // Closes the client socket and causes the thread to finish.
     public void cancel() {
+        if (socket == null) {
+            return;
+        }
         try {
             socket.close();
         } catch (IOException e) {
-            Log.e(Config.TAG, "Could not close the client socket", e);
+            Log.e(Config.TAG, "Could not close the client socket.", e);
         }
     }
 }

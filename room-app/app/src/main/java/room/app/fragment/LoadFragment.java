@@ -31,13 +31,18 @@ import room.app.databinding.LoadFragmentBinding;
  * Class used for describing the behaviour of the load fragment.
  */
 public class LoadFragment extends Fragment {
-    private enum Status {INIT, PAIR, ERROR, UNSUPPORTED, DISCONNECT}
-    private static final long MILLIS_AFTER_BT_DEV_PICKER = 3000;
+    private enum Status {INIT, CONNECT, ERROR, UNSUPPORTED, DISCONNECT, TIMEOUT, FAIL}
+    private static final long MILLIS_AFTER_BT_DEV_PICKER = 3 * 1000;
+    private static final long MILLIS_TIMEOUT_TIMER = 10 * 1000;
+    private static final int CONNECTION_ATTEMPT_LIMIT = 20;
+
     private boolean connectionSuccessful = false;
-    private BluetoothDevice devicePicked;
-    private Intent btDevicePicker;
-    private Activity parentActivity;
-    private LoadFragmentBinding binding;
+    private boolean intentStarted = false;
+    private BluetoothDevice devicePicked = null;
+    private BluetoothConnector btConnector = null;
+    private Intent btDevicePicker = null;
+    private Activity parentActivity = null;
+    private LoadFragmentBinding binding = null;
 
     private final BroadcastReceiver eventListener = new BroadcastReceiver() {
         @Override
@@ -48,33 +53,6 @@ public class LoadFragment extends Fragment {
             }
         }
     };
-
-    private void updateComponents(final Status new_status) {
-        String text;
-        int visibility = View.INVISIBLE;
-        switch (new_status) {
-            case PAIR:
-                text = getString(R.string.label_load_str_pair);
-                visibility = View.VISIBLE;
-                break;
-            case ERROR:
-                text = getString(R.string.label_load_str_fail);
-                break;
-            case UNSUPPORTED:
-                text = getString(R.string.label_load_str_unsupp);
-                break;
-            case DISCONNECT:
-                text = getString(R.string.label_load_str_disconn);
-                visibility = View.VISIBLE;
-                break;
-            case INIT:
-            default:
-                text = getString(R.string.label_load_str_init);
-                break;
-        }
-        binding.labelLoad.setText(text);
-        binding.progbarLoad.setVisibility(visibility);
-    }
 
     @Nullable
     @Override
@@ -89,10 +67,6 @@ public class LoadFragment extends Fragment {
     public void onViewCreated(@NonNull final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         parentActivity = requireActivity();
-        if (BluetoothConnector.isBluetoothUnsupported()) {
-            updateComponents(Status.UNSUPPORTED);
-            return;
-        }
 
         final IntentFilter devicePickFilter = new IntentFilter("android.bluetooth.devicepicker.action.DEVICE_SELECTED");
         parentActivity.registerReceiver(eventListener, devicePickFilter);
@@ -106,32 +80,38 @@ public class LoadFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        if (BluetoothConnector.isBluetoothUnsupported()){
+        if (BluetoothConnector.isBluetoothUnsupported()) {
+            parentActivity.runOnUiThread(() -> updateStatus(Status.UNSUPPORTED));
             return;
         }
         BluetoothConnector.requireBluetoothPermissions(parentActivity);
         if (devicePicked == null) {
-            new Handler().postDelayed(() -> startActivity(btDevicePicker), MILLIS_AFTER_BT_DEV_PICKER);
+            if (!intentStarted) {
+                new Handler().postDelayed(() -> startActivity(btDevicePicker), MILLIS_AFTER_BT_DEV_PICKER);
+                intentStarted = true;
+            }
             return;
         }
         Log.i(Config.TAG, "Device picked: " + devicePicked.getName());
-        parentActivity.runOnUiThread(() -> updateComponents(Status.PAIR));
-        final BluetoothConnector btConnector = new BluetoothConnector(parentActivity, devicePicked, this::testConnection);
+        parentActivity.runOnUiThread(() -> updateStatus(Status.CONNECT));
+        btConnector = new BluetoothConnector(parentActivity, devicePicked, this::testConnection);
         btConnector.start();
-        if (!connectionSuccessful) {
-            parentActivity.runOnUiThread(() -> updateComponents(Status.ERROR));
-            btConnector.cancel();
-            return;
-        }
-        final Bundle b = new Bundle();
-        b.putParcelable(Config.REQUEST_BT_DEVICE_KEY, devicePicked);
-        getParentFragmentManager().setFragmentResult(Config.REQUEST_BT_KEY, b);
-        NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment);
-        parentActivity.runOnUiThread(() -> updateComponents(Status.DISCONNECT));
+        new Thread(this::waitForConnection).start();
     }
 
     @Override
-    public void onDestroy(){
+    public void onStop() {
+        super.onStop();
+        parentActivity.runOnUiThread(() -> updateStatus(Status.INIT));
+        if (btConnector != null) {
+            btConnector.cancel();
+        }
+        devicePicked = null;
+        intentStarted = false;
+    }
+
+    @Override
+    public void onDestroy() {
         super.onDestroy();
         parentActivity.unregisterReceiver(eventListener);
     }
@@ -151,5 +131,73 @@ public class LoadFragment extends Fragment {
         } catch (IOException e) {
             Log.e(Config.TAG, "Error occurred when creating output stream", e);
         }
+    }
+
+    private void updateStatus(final Status new_status) {
+        String text;
+        int visibility = View.INVISIBLE;
+        switch (new_status) {
+            case INIT:
+                text = getString(R.string.label_load_str_init);
+                visibility = View.VISIBLE;
+                break;
+            case CONNECT:
+                text = getString(R.string.label_load_str_pair);
+                visibility = View.VISIBLE;
+                break;
+            case UNSUPPORTED:
+                text = getString(R.string.label_load_str_unsupp);
+                break;
+            case FAIL:
+                text = getString(R.string.label_load_str_fail_conn);
+                break;
+            case TIMEOUT:
+                text = getString(R.string.label_load_str_fail_conn) + getString(R.string.label_load_str_timeout);
+                break;
+            case DISCONNECT:
+                text = getString(R.string.label_load_str_disconn);
+                visibility = View.VISIBLE;
+                break;
+            case ERROR:
+            default:
+                text = getString(R.string.label_load_str_fail);
+                break;
+        }
+        binding.labelLoad.setText(text);
+        binding.progbarLoad.setVisibility(visibility);
+    }
+
+    private void waitForConnection() {
+        long timePassed = 0;
+        while(btConnector.isAlive()) {
+            if (timePassed < MILLIS_TIMEOUT_TIMER) {
+                final long timeToSleep = MILLIS_TIMEOUT_TIMER / CONNECTION_ATTEMPT_LIMIT;
+                timePassed += timeToSleep;
+                try {
+                    Thread.sleep(timeToSleep);
+                } catch (InterruptedException e) {
+                    Log.e(Config.TAG, "Thread sleep interrupted.", e);
+                }
+                continue;
+            }
+            parentActivity.runOnUiThread(() -> updateStatus(Status.TIMEOUT));
+            btConnector.cancel();
+            btConnector = null;
+            return;
+        }
+        if (!connectionSuccessful) {
+            parentActivity.runOnUiThread(() -> updateStatus(Status.FAIL));
+            btConnector = null;
+            return;
+        }
+        moveToNextFragment();
+        btConnector = null;
+    }
+
+    private void moveToNextFragment() {
+        final Bundle b = new Bundle();
+        b.putParcelable(Config.REQUEST_BT_DEVICE_KEY, devicePicked);
+        getParentFragmentManager().setFragmentResult(Config.REQUEST_BT_KEY, b);
+        NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment);
     }
 }

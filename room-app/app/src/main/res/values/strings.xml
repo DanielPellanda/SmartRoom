@@ -16,5 +16,7 @@
     <string name="label_load_str_fail">Something went wrong.\nClose the app and try again.</string>
     <string name="label_load_str_unsupp">Bluetooth is unsupported on your device.\nCannot continue.</string>
     <string name="label_load_str_disconn">Your device was disconnected. Try connecting it again.</string>
+    <string name="label_load_str_fail_conn">Cannot connect to requested device.\n</string>
+    <string name="label_load_str_timeout">Connection timed out.</string>
 
 </resources>
