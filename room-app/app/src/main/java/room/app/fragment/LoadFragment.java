@@ -81,7 +81,7 @@ public class LoadFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (BluetoothConnector.isBluetoothUnsupported()) {
-            parentActivity.runOnUiThread(() -> updateStatus(Status.UNSUPPORTED));
+            parentActivity.runOnUiThread(() -> updateComponents(Status.UNSUPPORTED));
             return;
         }
         BluetoothConnector.requireBluetoothPermissions(parentActivity);
@@ -93,7 +93,7 @@ public class LoadFragment extends Fragment {
             return;
         }
         Log.i(Config.TAG, "Device picked: " + devicePicked.getName());
-        parentActivity.runOnUiThread(() -> updateStatus(Status.CONNECT));
+        parentActivity.runOnUiThread(() -> updateComponents(Status.CONNECT));
         btConnector = new BluetoothConnector(parentActivity, devicePicked, this::testConnection);
         btConnector.start();
         new Thread(this::waitForConnection).start();
@@ -102,7 +102,7 @@ public class LoadFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        parentActivity.runOnUiThread(() -> updateStatus(Status.INIT));
+        parentActivity.runOnUiThread(() -> updateComponents(Status.INIT));
         if (btConnector != null) {
             btConnector.cancel();
         }
@@ -114,6 +114,7 @@ public class LoadFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         parentActivity.unregisterReceiver(eventListener);
+        parentActivity = null;
     }
 
     @Override
@@ -122,6 +123,10 @@ public class LoadFragment extends Fragment {
         binding = null;
     }
 
+    /**
+     * Tests the connection of a bluetooth socket.
+     * @param socket the socket to test.
+     */
     private void testConnection(final BluetoothSocket socket) {
         try {
             socket.getOutputStream();
@@ -133,10 +138,14 @@ public class LoadFragment extends Fragment {
         }
     }
 
-    private void updateStatus(final Status new_status) {
+    /**
+     * Updates the UI components according to the current status of the task.
+     * @param status the new status to apply.
+     */
+    private void updateComponents(final Status status) {
         String text;
         int visibility = View.INVISIBLE;
-        switch (new_status) {
+        switch (status) {
             case INIT:
                 text = getString(R.string.label_load_str_init);
                 visibility = View.VISIBLE;
@@ -167,6 +176,11 @@ public class LoadFragment extends Fragment {
         binding.progbarLoad.setVisibility(visibility);
     }
 
+    /**
+     * Awaits for a response from socket.connect() and handles it.
+     * It's suggested to run this method behind a seperate thread, to avoid leaving the
+     * program stuck while waiting for the connection.
+     */
     private void waitForConnection() {
         long timePassed = 0;
         while(btConnector.isAlive()) {
@@ -180,13 +194,13 @@ public class LoadFragment extends Fragment {
                 }
                 continue;
             }
-            parentActivity.runOnUiThread(() -> updateStatus(Status.TIMEOUT));
+            parentActivity.runOnUiThread(() -> updateComponents(Status.TIMEOUT));
             btConnector.cancel();
             btConnector = null;
             return;
         }
         if (!connectionSuccessful) {
-            parentActivity.runOnUiThread(() -> updateStatus(Status.FAIL));
+            parentActivity.runOnUiThread(() -> updateComponents(Status.FAIL));
             btConnector = null;
             return;
         }
@@ -194,6 +208,10 @@ public class LoadFragment extends Fragment {
         btConnector = null;
     }
 
+    /**
+     * After retrieved the BluetoothDevice instance of the device selected by the user,
+     * the program proceeds to move the next fragment.
+     */
     private void moveToNextFragment() {
         final Bundle b = new Bundle();
         b.putParcelable(Config.REQUEST_BT_DEVICE_KEY, devicePicked);
