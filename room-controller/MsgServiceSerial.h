@@ -19,6 +19,10 @@ class MsgServiceSerial {
     * sends msg on the serial line
     */
     void sendMsg(String msg);
+    /**
+    * receives a message from the serial line
+    */
+    void receiveMsg();
 };
 
 #endif

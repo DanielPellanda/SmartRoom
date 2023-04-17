@@ -19,6 +19,7 @@ void CommunicationTask::init(int period, ClockTask* clockTask, int* servoAngle, 
 void CommunicationTask::tick() {
   String msg, light;
   btCommChannel->receiveMsg();
+  serialCommChannel->receiveMsg();
   switch (*currState){
     case AUTO:
       if(btConfig->isCtrlReq()){
@@ -40,9 +41,13 @@ void CommunicationTask::tick() {
     default:
       break;
   }
+
+  /* pack informations */
   *lights ? light = "1" : light = "0";
   msg = *currState + sep + clock->getHour() + sep + clock->getMinute()
     + sep + light + sep + *servoAngle;
+
+  /* send informations */
   btCommChannel->sendMsg(msg);
   serialCommChannel->sendMsg(msg);
 }

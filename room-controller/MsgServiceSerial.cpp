@@ -24,7 +24,7 @@ void clearMsg(){
   }
 }
 
-void serialEvent() {
+void MsgServiceSerial::receiveMsg() {
   int i = 0;
   /* reading the content */
   while (Serial.available()) {
