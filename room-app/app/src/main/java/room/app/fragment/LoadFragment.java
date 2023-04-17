@@ -24,6 +24,7 @@ import java.io.IOException;
 
 import room.app.Config;
 import room.app.R;
+import room.app.activity.MainActivity;
 import room.app.bluetooth.BluetoothConnector;
 import room.app.databinding.LoadFragmentBinding;
 
@@ -217,6 +218,7 @@ public class LoadFragment extends Fragment {
         final Bundle b = new Bundle();
         b.putParcelable(Config.REQUEST_BT_DEVICE_KEY, devicePicked);
         getParentFragmentManager().setFragmentResult(Config.REQUEST_BT_KEY, b); */
+        ((MainActivity) parentActivity).setDevice(devicePicked);
         NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment);
     }
 }
