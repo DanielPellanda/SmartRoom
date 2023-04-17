@@ -31,7 +31,7 @@ import room.app.databinding.FormFragmentBinding;
  * Class used for describing the behaviour of the form fragment.
  */
 public class FormFragment extends Fragment {
-    private static final int BUFFER_SIZE = 16;
+    private static final int BUFFER_SIZE = 12;
     private static final long UPDATE_INTERVAL = 1000;
 
     private ControlStatus status = ControlStatus.AUTO;
