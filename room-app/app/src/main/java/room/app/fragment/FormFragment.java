@@ -18,8 +18,8 @@ import androidx.lifecycle.Lifecycle;
 import androidx.navigation.fragment.NavHostFragment;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 
 import room.app.Config;
 import room.app.R;
@@ -35,7 +35,7 @@ public class FormFragment extends Fragment {
     private static final long UPDATE_INTERVAL = 1000;
 
     private ControlStatus status = ControlStatus.AUTO;
-    private OutputStream outputWriter = null;
+    private DataOutputStream outputWriter = null;
     private BluetoothConnector backgroundUpdate = null;
     private Activity parentActivity = null;
     private FormFragmentBinding binding = null;
@@ -143,8 +143,8 @@ public class FormFragment extends Fragment {
         Lifecycle.State currLifecycleState = getLifecycle().getCurrentState();
         try {
             Log.i(Config.TAG, "Initializing data updater. ");
-            final InputStream input = socket.getInputStream();
-            outputWriter = socket.getOutputStream();
+            final DataInputStream input = new DataInputStream(socket.getInputStream());
+            outputWriter = new DataOutputStream(socket.getOutputStream());
             while(currLifecycleState != Lifecycle.State.DESTROYED && currLifecycleState != Lifecycle.State.CREATED) {
                 final byte[] buffer = new byte[BUFFER_SIZE];
                 final int numBytes = input.read(buffer);
