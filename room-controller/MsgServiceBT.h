@@ -33,6 +33,7 @@ class MsgServiceBT {
   
     void clearMsg(){
       for (int i = 0; i < NUM_PARAM; i ++ ){
+        Serial.println(parsedMsg[i]);
        parsedMsg[i] = "";
      }
    }

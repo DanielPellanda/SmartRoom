@@ -37,6 +37,7 @@ void MsgServiceSerial::receiveMsg() {
         dbConfig->setConfig(parsedMsg[REQ], parsedMsg[LIGHT], parsedMsg[RB]);
         sensors->setReadings(parsedMsg[SOMEONE], parsedMsg[LIGHTSENS]);
         clearMsg();
+        Serial.flush();
         break;
       default:
         parsedMsg[i] += ch;
