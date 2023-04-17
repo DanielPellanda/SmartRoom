@@ -78,13 +78,14 @@ public class FormFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        getParentFragmentManager().setFragmentResultListener(Config.REQUEST_BT_KEY, this, (requestKey, result) -> btDevice = result.getParcelable(Config.REQUEST_BT_DEVICE_KEY));
     }
 
     @SuppressLint("MissingPermission")
     @Override
     public void onStart() {
         super.onStart();
+        BluetoothConnector.requireBluetoothPermissions(parentActivity);
+        getParentFragmentManager().setFragmentResultListener(Config.REQUEST_BT_KEY, this, (requestKey, result) -> btDevice = result.getParcelable(Config.REQUEST_BT_DEVICE_KEY));
         if (btDevice == null) {
             Log.e(Config.TAG, "No device connected.");
             return;
