@@ -1,5 +1,6 @@
 package room.app.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -63,7 +64,6 @@ public class FormFragment extends Fragment {
     public void onViewCreated(@NonNull final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         parentActivity = requireActivity();
-        getParentFragmentManager().setFragmentResultListener(Config.REQUEST_BT_KEY, this, (requestKey, result) -> btDevice = result.getParcelable(Config.REQUEST_BT_DEVICE_KEY));
         binding.buttonApply.setOnClickListener(v -> writeMessage(ControlStatus.APP));
         binding.buttonRelease.setOnClickListener(v -> writeMessage(ControlStatus.AUTO));
         binding.seekbarRollb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -78,14 +78,18 @@ public class FormFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
+        getParentFragmentManager().setFragmentResultListener(Config.REQUEST_BT_KEY, this, (requestKey, result) -> btDevice = result.getParcelable(Config.REQUEST_BT_DEVICE_KEY));
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onStart() {
         super.onStart();
         if (btDevice == null) {
+            Log.e(Config.TAG, "No device connected.");
             return;
         }
+        Log.i(Config.TAG, "Device connected: " + btDevice.getName());
         backgroundUpdate = new BluetoothConnector(parentActivity, btDevice, this::updateData, () -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
         backgroundUpdate.start();
     }
