@@ -19,6 +19,7 @@ void MsgServiceSerial::sendMsg(String msg){
 
 void clearMsg(){
   for (int i = 0; i < MSG_FIELDS; i ++ ){
+    Serial.println(parsedMsg[i]);
     parsedMsg[i] = "";
   }
 }
@@ -35,6 +36,7 @@ void serialEvent() {
       case END_COMM:
         dbConfig->setConfig(parsedMsg[REQ], parsedMsg[LIGHT], parsedMsg[RB]);
         sensors->setReadings(parsedMsg[SOMEONE], parsedMsg[LIGHTSENS]);
+        clearMsg();
         break;
       default:
         parsedMsg[i] += ch;
