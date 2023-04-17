@@ -50,6 +50,12 @@ public class FormFragment extends Fragment {
             return value;
         }
     }
+    
+    @Override
+    public void onCreate(final Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        getParentFragmentManager().setFragmentResultListener(Config.REQUEST_BT_KEY, this, (requestKey, result) -> btDevice = result.getParcelable(Config.REQUEST_BT_DEVICE_KEY));
+    }
 
     @Nullable
     @Override
@@ -85,7 +91,6 @@ public class FormFragment extends Fragment {
     public void onStart() {
         super.onStart();
         BluetoothConnector.requireBluetoothPermissions(parentActivity);
-        getParentFragmentManager().setFragmentResultListener(Config.REQUEST_BT_KEY, this, (requestKey, result) -> btDevice = result.getParcelable(Config.REQUEST_BT_DEVICE_KEY));
         if (btDevice == null) {
             Log.e(Config.TAG, "No device connected.");
             return;
