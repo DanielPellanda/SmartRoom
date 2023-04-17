@@ -64,8 +64,8 @@ public class FormFragment extends Fragment {
     public void onViewCreated(@NonNull final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         parentActivity = requireActivity();
-        binding.buttonApply.setOnClickListener(v -> writeMessage(ControlStatus.APP));
-        binding.buttonRelease.setOnClickListener(v -> writeMessage(ControlStatus.AUTO));
+        binding.buttonApply.setOnClickListener(v -> new Thread(() -> writeMessage(ControlStatus.APP)).start());
+        binding.buttonRelease.setOnClickListener(v -> new Thread(() -> writeMessage(ControlStatus.AUTO)).start());
         binding.seekbarRollb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -149,6 +149,7 @@ public class FormFragment extends Fragment {
                 final byte[] buffer = new byte[BUFFER_SIZE];
                 final int numBytes = input.read(buffer);
 
+                Log.i(Config.TAG, "Reading buffer. ");
                 final String message = new String(buffer);
                 final String[] data = message.split(";");
                 try {
@@ -162,7 +163,7 @@ public class FormFragment extends Fragment {
             }
             Log.i(Config.TAG, "Closing data updater. ");
         } catch (IOException e) {
-            Log.e(Config.TAG, "Socket error occurred. Details: ", e);
+            Log.e(Config.TAG, "Input/Output Error occurred. Details: ", e);
         } catch (InterruptedException e) {
             Log.e(Config.TAG, "Thread sleep interrupted. ", e);
         }
