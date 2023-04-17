@@ -32,12 +32,11 @@ import room.app.databinding.FormFragmentBinding;
  */
 public class FormFragment extends Fragment {
     private static final int BUFFER_SIZE = 1024;
-    private static final int UPDATE_INTERVAL = 1000;
+    private static final long UPDATE_INTERVAL = 1000;
 
     private ControlStatus status = ControlStatus.AUTO;
     private OutputStream outputWriter = null;
     private BluetoothConnector backgroundUpdate = null;
-    private BluetoothDevice btDevice = null;
     private Activity parentActivity = null;
     private FormFragmentBinding binding = null;
 
@@ -68,9 +67,10 @@ public class FormFragment extends Fragment {
         binding.buttonApply.setOnClickListener(v -> writeMessage(ControlStatus.APP));
         binding.buttonRelease.setOnClickListener(v -> writeMessage(ControlStatus.AUTO));
         binding.seekbarRollb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @SuppressLint("StringFormatInvalid")
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                parentActivity.runOnUiThread(() -> binding.textRollb.setText(String.format(String.valueOf(R.string.text_rollb_string), i)));
+                binding.textRollb.setText(getString(R.string.text_rollb_string, i));
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -79,22 +79,22 @@ public class FormFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-        //getParentFragmentManager().setFragmentResultListener(Config.REQUEST_BT_KEY, this, (requestKey, result) -> btDevice = result.getParcelable(Config.REQUEST_BT_DEVICE_KEY));
     }
 
     @SuppressLint("MissingPermission")
     @Override
     public void onStart() {
         super.onStart();
-        btDevice = ((MainActivity) parentActivity).getDevice();
         BluetoothConnector.requireBluetoothPermissions(parentActivity);
+        final BluetoothDevice btDevice = ((MainActivity) parentActivity).getDevice();
         if (btDevice == null) {
             Log.e(Config.TAG, "No device connected.");
             return;
         }
         Log.i(Config.TAG, "Device connected: " + btDevice.getName());
-        backgroundUpdate = new BluetoothConnector(parentActivity, btDevice, this::updateData, () -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
+        backgroundUpdate = new BluetoothConnector(parentActivity, btDevice, this::updateData);
         backgroundUpdate.start();
+        new Thread(this::checkConnection).start();
     }
 
     @Override
@@ -142,25 +142,43 @@ public class FormFragment extends Fragment {
     private void updateData(final BluetoothSocket socket) {
         Lifecycle.State currLifecycleState = getLifecycle().getCurrentState();
         try {
+            Log.i(Config.TAG, "Initializing data updater. ");
             final InputStream input = socket.getInputStream();
             outputWriter = socket.getOutputStream();
             while(currLifecycleState != Lifecycle.State.DESTROYED && currLifecycleState != Lifecycle.State.CREATED) {
-                if (currLifecycleState == Lifecycle.State.RESUMED) {
-                    final byte[] buffer = new byte[BUFFER_SIZE];
-                    final int numBytes = input.read(buffer);
+                final byte[] buffer = new byte[BUFFER_SIZE];
+                final int numBytes = input.read(buffer);
 
-                    final String message = new String(buffer);
-                    final String[] data = message.split(";");
-                    updateStatusFromInt(Integer.parseInt(data[0]));
-                    Log.i(Config.TAG, "Received " + numBytes + " bytes from Arduino. Content:\n" + message);
+                final String message = new String(buffer);
+                final String[] data = message.split(";");
+                try {
+                    parentActivity.runOnUiThread(() -> updateStatusFromInt(Integer.parseInt(data[0])));
+                } catch (NumberFormatException n) {
+                    Log.e(Config.TAG, "Invalid data format received.\n" + n);
                 }
+                Log.i(Config.TAG, "Received " + numBytes + " bytes from Arduino. Content:\n" + message);
                 Thread.sleep(UPDATE_INTERVAL);
                 currLifecycleState = getLifecycle().getCurrentState();
             }
+            Log.i(Config.TAG, "Closing data updater. ");
         } catch (IOException e) {
-            Log.e(Config.TAG, "Error occurred. Details: ", e);
+            Log.e(Config.TAG, "Socket error occurred. Details: ", e);
         } catch (InterruptedException e) {
             Log.e(Config.TAG, "Thread sleep interrupted. ", e);
+        }
+    }
+
+    private void checkConnection() {
+        while(true) {
+            if (!backgroundUpdate.isAlive()) {
+                parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
+                return;
+            }
+            try {
+                Thread.sleep(UPDATE_INTERVAL);
+            } catch (InterruptedException e) {
+                Log.e(Config.TAG, "Thread sleep interrupted. ", e);
+            }
         }
     }
 
@@ -171,34 +189,26 @@ public class FormFragment extends Fragment {
     private void updateStatusFromInt(final int value) {
         switch(value) {
             case 0:
-                parentActivity.runOnUiThread(() -> {
-                    binding.buttonApply.setEnabled(true);
-                    binding.buttonRelease.setEnabled(false);
-                    binding.labelStatus.setText(status.name().toUpperCase());
-                });
+                binding.buttonApply.setEnabled(true);
+                binding.buttonRelease.setEnabled(false);
+                binding.labelStatus.setText(status.name().toUpperCase());
                 status = ControlStatus.AUTO;
                 break;
             case 1:
-                parentActivity.runOnUiThread(() -> {
-                    binding.buttonApply.setEnabled(false);
-                    binding.buttonRelease.setEnabled(false);
-                    binding.labelStatus.setText(status.name().toUpperCase());
-                });
+                binding.buttonApply.setEnabled(false);
+                binding.buttonRelease.setEnabled(false);
+                binding.labelStatus.setText(status.name().toUpperCase());
                 status = ControlStatus.DASHBOARD;
             case 2:
-                parentActivity.runOnUiThread(() -> {
-                    binding.buttonApply.setEnabled(true);
-                    binding.buttonRelease.setEnabled(true);
-                    binding.labelStatus.setText(status.name().toUpperCase());
-                });
+                binding.buttonApply.setEnabled(true);
+                binding.buttonRelease.setEnabled(true);
+                binding.labelStatus.setText(status.name().toUpperCase());
                 status = ControlStatus.APP;
                 break;
             default:
-                parentActivity.runOnUiThread(() -> {
-                    binding.buttonApply.setEnabled(false);
-                    binding.buttonRelease.setEnabled(false);
-                    binding.labelStatus.setText(status.name().toUpperCase());
-                });
+                binding.buttonApply.setEnabled(false);
+                binding.buttonRelease.setEnabled(false);
+                binding.labelStatus.setText(status.name().toUpperCase());
                 status = ControlStatus.UNDEFINED;
                 break;
         }

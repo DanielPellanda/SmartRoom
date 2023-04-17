@@ -82,7 +82,7 @@ public class LoadFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (BluetoothConnector.isBluetoothUnsupported()) {
-            parentActivity.runOnUiThread(() -> updateComponents(Status.UNSUPPORTED));
+            updateComponents(Status.UNSUPPORTED);
             return;
         }
         BluetoothConnector.requireBluetoothPermissions(parentActivity);
@@ -94,16 +94,16 @@ public class LoadFragment extends Fragment {
             return;
         }
         Log.i(Config.TAG, "Device picked: " + devicePicked.getName());
-        parentActivity.runOnUiThread(() -> updateComponents(Status.CONNECT));
+        updateComponents(Status.CONNECT);
         btConnector = new BluetoothConnector(parentActivity, devicePicked, this::testConnection);
         btConnector.start();
-        new Handler().post(this::waitForConnection);
+        new Thread(this::waitForConnection).start();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        parentActivity.runOnUiThread(() -> updateComponents(Status.INIT));
+        updateComponents(Status.INIT);
         if (btConnector != null) {
             btConnector.cancel();
         }
@@ -214,11 +214,7 @@ public class LoadFragment extends Fragment {
      * the program proceeds to move the next fragment.
      */
     private void moveToNextFragment() {
-        /*
-        final Bundle b = new Bundle();
-        b.putParcelable(Config.REQUEST_BT_DEVICE_KEY, devicePicked);
-        getParentFragmentManager().setFragmentResult(Config.REQUEST_BT_KEY, b); */
         ((MainActivity) parentActivity).setDevice(devicePicked);
-        NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment);
+        parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment));
     }
 }

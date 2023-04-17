@@ -27,7 +27,6 @@ public class BluetoothConnector extends Thread {
 
     public static final BluetoothAdapter BLUETOOTH_ADAPTER = BluetoothAdapter.getDefaultAdapter();
     private final Consumer<BluetoothSocket> handler;
-    private Runnable disconnectionHandle = null;
     private final Activity contextActivity;
     private final BluetoothSocket socket;
 
@@ -48,11 +47,6 @@ public class BluetoothConnector extends Thread {
             Log.e(Config.TAG, "Socket's create() method failed", e);
         }
         socket = tmp;
-    }
-
-    public BluetoothConnector(final Activity contextActivity, final BluetoothDevice device, final Consumer<BluetoothSocket> handler, final Runnable disconnectionHandle) {
-        this(contextActivity, device, handler);
-        this.disconnectionHandle = disconnectionHandle;
     }
 
     /**
@@ -94,9 +88,6 @@ public class BluetoothConnector extends Thread {
         } catch (IOException connectException) {
             Log.e(Config.TAG, "Unable to connect. Details:\n" + connectException);
             // Unable to connect; close the socket and return.
-            if (disconnectionHandle != null) {
-                disconnectionHandle.run();
-            }
             cancel();
             return;
         }
