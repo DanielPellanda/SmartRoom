@@ -213,9 +213,10 @@ public class LoadFragment extends Fragment {
      * the program proceeds to move the next fragment.
      */
     private void moveToNextFragment() {
+        /*
         final Bundle b = new Bundle();
         b.putParcelable(Config.REQUEST_BT_DEVICE_KEY, devicePicked);
-        getParentFragmentManager().setFragmentResult(Config.REQUEST_BT_KEY, b);
+        getParentFragmentManager().setFragmentResult(Config.REQUEST_BT_KEY, b); */
         NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment);
     }
 }

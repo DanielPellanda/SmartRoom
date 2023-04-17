@@ -23,6 +23,7 @@ import java.io.OutputStream;
 
 import room.app.Config;
 import room.app.R;
+import room.app.activity.MainActivity;
 import room.app.bluetooth.BluetoothConnector;
 import room.app.databinding.FormFragmentBinding;
 
@@ -49,12 +50,6 @@ public class FormFragment extends Fragment {
         int getValue() {
             return value;
         }
-    }
-    
-    @Override
-    public void onCreate(final Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        getParentFragmentManager().setFragmentResultListener(Config.REQUEST_BT_KEY, this, (requestKey, result) -> btDevice = result.getParcelable(Config.REQUEST_BT_DEVICE_KEY));
     }
 
     @Nullable
@@ -84,12 +79,14 @@ public class FormFragment extends Fragment {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
+        //getParentFragmentManager().setFragmentResultListener(Config.REQUEST_BT_KEY, this, (requestKey, result) -> btDevice = result.getParcelable(Config.REQUEST_BT_DEVICE_KEY));
     }
 
     @SuppressLint("MissingPermission")
     @Override
     public void onStart() {
         super.onStart();
+        btDevice = ((MainActivity) parentActivity).getDevice();
         BluetoothConnector.requireBluetoothPermissions(parentActivity);
         if (btDevice == null) {
             Log.e(Config.TAG, "No device connected.");
