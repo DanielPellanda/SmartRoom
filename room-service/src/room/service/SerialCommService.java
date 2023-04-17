@@ -8,7 +8,7 @@ import room.service.channel.serial.SerialCommChannel;
  */
 public class SerialCommService implements CommService {
 	
-	private final long period = 200;
+	private final long period = 210;
 	private Thread communicate;
 	private SerialCommChannel arduinoConnector;
 	private Database data;
@@ -32,20 +32,20 @@ public class SerialCommService implements CommService {
 			@Override
 			public void run() {
 				while(true) {
-					synchronized (data) {
-						arduinoConnector.sendMsg(data.getArduinoData());
-						if(arduinoConnector.isMsgAvailable()) {
-							String msg = "";
-							try {
+					String msg = "";
+					while(arduinoConnector.isMsgAvailable()) {
+						try {
 								msg = arduinoConnector.receiveMsg();
 								System.out.println("Arduino -> " + msg);
-								data.updateArduinoData(msg);
 							} catch (InterruptedException e) {
 								System.err.println("Interrupted while waiting for serial data...");
 							} catch (ArrayIndexOutOfBoundsException ea) {
 								System.err.println("Couldn't read received output...");
 							}
-						}
+					}
+					synchronized (data) {
+						arduinoConnector.sendMsg(data.getArduinoData());
+						data.updateArduinoData(msg);
 					}
 					try {
 						Thread.sleep(period);
