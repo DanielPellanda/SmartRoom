@@ -18,8 +18,8 @@ import androidx.lifecycle.Lifecycle;
 import androidx.navigation.fragment.NavHostFragment;
 
 import java.io.IOException;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import room.app.Config;
 import room.app.R;
@@ -31,11 +31,11 @@ import room.app.databinding.FormFragmentBinding;
  * Class used for describing the behaviour of the form fragment.
  */
 public class FormFragment extends Fragment {
-    private static final int BUFFER_SIZE = 1024;
+    private static final int BUFFER_SIZE = 128;
     private static final long UPDATE_INTERVAL = 1000;
 
     private ControlStatus status = ControlStatus.AUTO;
-    private DataOutputStream outputWriter = null;
+    private OutputStream outputWriter = null;
     private BluetoothConnector backgroundUpdate = null;
     private Activity parentActivity = null;
     private FormFragmentBinding binding = null;
@@ -143,13 +143,12 @@ public class FormFragment extends Fragment {
         Lifecycle.State currLifecycleState = getLifecycle().getCurrentState();
         try {
             Log.i(Config.TAG, "Initializing data updater. ");
-            final DataInputStream input = new DataInputStream(socket.getInputStream());
-            outputWriter = new DataOutputStream(socket.getOutputStream());
+            final InputStream input = socket.getInputStream();
+            outputWriter = socket.getOutputStream();
             while(currLifecycleState != Lifecycle.State.DESTROYED && currLifecycleState != Lifecycle.State.CREATED) {
                 final byte[] buffer = new byte[BUFFER_SIZE];
                 final int numBytes = input.read(buffer);
 
-                Log.i(Config.TAG, "Reading buffer. ");
                 final String message = new String(buffer);
                 final String[] data = message.split(";");
                 try {
