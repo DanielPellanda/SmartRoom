@@ -8,7 +8,6 @@
     <string name="rollb_label_string">Rollerblinds</string>
     <string name="switch_light_string">Lights ON/OFF</string>
     <string name="label_status_string">Status: </string>
-    <string name="text_rollb_string">%1$d %</string>
     <!-- Loading fragment -->
     <string name="load_fragment_string">Load fragment</string>
     <string name="label_load_str_init">Connect your arduino device\nto continue.</string>

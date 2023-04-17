@@ -67,10 +67,10 @@ public class FormFragment extends Fragment {
         binding.buttonApply.setOnClickListener(v -> writeMessage(ControlStatus.APP));
         binding.buttonRelease.setOnClickListener(v -> writeMessage(ControlStatus.AUTO));
         binding.seekbarRollb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @SuppressLint("StringFormatInvalid")
+            @SuppressLint("SetTextI18n")
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                binding.textRollb.setText(getString(R.string.text_rollb_string, i));
+                binding.textRollb.setText(i + "%");
             }
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
@@ -170,7 +170,10 @@ public class FormFragment extends Fragment {
 
     private void checkConnection() {
         while(true) {
-            if (!backgroundUpdate.isAlive()) {
+            if (backgroundUpdate == null) {
+                parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
+                return;
+            } else if (!backgroundUpdate.isAlive()) {
                 parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
                 return;
             }
