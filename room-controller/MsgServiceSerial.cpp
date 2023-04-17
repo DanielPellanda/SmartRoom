@@ -19,7 +19,7 @@ void MsgServiceSerial::sendMsg(String msg){
 
 void clearMsg(){
   for (int i = 0; i < MSG_FIELDS; i ++ ){
-    Serial.println(parsedMsg[i]);
+    //Serial.println(parsedMsg[i]);
     parsedMsg[i] = "";
   }
 }
