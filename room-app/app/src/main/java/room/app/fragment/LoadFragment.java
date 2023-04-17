@@ -96,7 +96,7 @@ public class LoadFragment extends Fragment {
         parentActivity.runOnUiThread(() -> updateComponents(Status.CONNECT));
         btConnector = new BluetoothConnector(parentActivity, devicePicked, this::testConnection);
         btConnector.start();
-        new Thread(this::waitForConnection).start();
+        new Handler().post(this::waitForConnection);
     }
 
     @Override
