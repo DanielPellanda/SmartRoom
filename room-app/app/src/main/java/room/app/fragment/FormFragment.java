@@ -139,22 +139,22 @@ public class FormFragment extends Fragment {
      * @param socket the socket used for the connection.
      */
     private void updateData(final BluetoothSocket socket) {
+        Lifecycle.State currLifecycleState = getLifecycle().getCurrentState();
         try {
             final InputStream input = socket.getInputStream();
             outputWriter = socket.getOutputStream();
-            String leftover = "";
+            String bufferLeftover = "";
 
             Log.i(Config.TAG, "Initializing data updater. ");
-            for (Lifecycle.State currLifecycleState = getLifecycle().getCurrentState();
-                 isInRuntimeState(currLifecycleState);
-                 currLifecycleState = getLifecycle().getCurrentState()) {
-                for (int bytes = input.available(); bytes > 0; bytes = input.available()) {
-                    final byte[] buffer = new byte[bytes];
+            while (isInRuntimeState(currLifecycleState)) {
+                final int bytesAvailable = input.available();
+                if (bytesAvailable > 0) {
+                    final byte[] buffer = new byte[bytesAvailable];
                     final int numBytes = input.read(buffer);
                     final String message = new String(buffer);
                     Log.i(Config.TAG, "Received " + numBytes + " bytes from Arduino. Content:\n" + message);
 
-                    final String[] messageLines = (leftover+message).split("\n");
+                    final String[] messageLines = (bufferLeftover+message).split("\n");
                     if (messageLines.length > 1) {
                         final String[] data = messageLines[messageLines.length-2].split(";");
                         parentActivity.runOnUiThread(() -> {
@@ -165,9 +165,10 @@ public class FormFragment extends Fragment {
                             }
                         });
                     }
-                    leftover = messageLines[messageLines.length-1];
+                    bufferLeftover = messageLines[messageLines.length-1];
                 }
                 Thread.sleep(UPDATE_INTERVAL);
+                currLifecycleState = getLifecycle().getCurrentState();
             }
             Log.i(Config.TAG, "Closing data updater. ");
 
