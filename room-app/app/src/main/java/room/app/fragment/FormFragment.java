@@ -31,12 +31,11 @@ import room.app.databinding.FormFragmentBinding;
  * Class used for describing the behaviour of the form fragment.
  */
 public class FormFragment extends Fragment {
-    private static final int BUFFER_SIZE = 12;
     private static final long UPDATE_INTERVAL = 1000;
 
     private ControlStatus status = ControlStatus.AUTO;
     private OutputStream outputWriter = null;
-    private BluetoothConnector backgroundUpdate = null;
+    private BluetoothConnector dataUpdater = null;
     private Activity parentActivity = null;
     private FormFragmentBinding binding = null;
 
@@ -92,17 +91,17 @@ public class FormFragment extends Fragment {
             return;
         }
         Log.i(Config.TAG, "Device connected: " + btDevice.getName());
-        backgroundUpdate = new BluetoothConnector(parentActivity, btDevice, this::updateData);
-        backgroundUpdate.start();
+        dataUpdater = new BluetoothConnector(parentActivity, btDevice, this::updateData);
+        dataUpdater.start();
         new Thread(this::checkConnection).start();
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (backgroundUpdate != null) {
-            backgroundUpdate.cancel();
-            backgroundUpdate = null;
+        if (dataUpdater != null) {
+            dataUpdater.cancel();
+            dataUpdater = null;
         }
     }
 
@@ -127,7 +126,7 @@ public class FormFragment extends Fragment {
                     String.valueOf(binding.switchLight.isChecked() ? 1 : 0),
                     String.valueOf(binding.seekbarRollb.getProgress())
             };
-            final String message = data[0] + ";" + data[1] + ";" + data[2];
+            final String message = data[0] + ";" + data[1] + ";" + data[2] + "\n";
             outputWriter.write(message.getBytes());
             Log.i(Config.TAG, "Sent " + message.getBytes().length + " bytes to Arduino. Content:\n" + message);
         } catch (IOException e) {
@@ -140,27 +139,38 @@ public class FormFragment extends Fragment {
      * @param socket the socket used for the connection.
      */
     private void updateData(final BluetoothSocket socket) {
-        Lifecycle.State currLifecycleState = getLifecycle().getCurrentState();
         try {
-            Log.i(Config.TAG, "Initializing data updater. ");
             final InputStream input = socket.getInputStream();
             outputWriter = socket.getOutputStream();
-            while(currLifecycleState != Lifecycle.State.DESTROYED && currLifecycleState != Lifecycle.State.CREATED) {
-                final byte[] buffer = new byte[BUFFER_SIZE];
-                final int numBytes = input.read(buffer);
+            String leftover = "";
 
-                final String message = new String(buffer);
-                final String[] data = message.split(";");
-                try {
-                    parentActivity.runOnUiThread(() -> updateStatusFromInt(Integer.parseInt(data[0])));
-                } catch (NumberFormatException n) {
-                    Log.e(Config.TAG, "Invalid data format received.\n" + n);
+            Log.i(Config.TAG, "Initializing data updater. ");
+            for (Lifecycle.State currLifecycleState = getLifecycle().getCurrentState();
+                 isInRuntimeState(currLifecycleState);
+                 currLifecycleState = getLifecycle().getCurrentState()) {
+                for (int bytes = input.available(); bytes > 0; bytes = input.available()) {
+                    final byte[] buffer = new byte[bytes];
+                    final int numBytes = input.read(buffer);
+                    final String message = new String(buffer);
+                    Log.i(Config.TAG, "Received " + numBytes + " bytes from Arduino. Content:\n" + message);
+
+                    final String[] messageLines = (leftover+message).split("\n");
+                    if (messageLines.length > 1) {
+                        final String[] data = messageLines[messageLines.length-2].split(";");
+                        parentActivity.runOnUiThread(() -> {
+                            try {
+                                updateStatusFromInt(Integer.parseInt(data[0]));
+                            } catch (NumberFormatException n) {
+                                Log.e(Config.TAG, "Invalid data format received.\n" + n);
+                            }
+                        });
+                    }
+                    leftover = messageLines[messageLines.length-1];
                 }
-                Log.i(Config.TAG, "Received " + numBytes + " bytes from Arduino. Content:\n" + message);
                 Thread.sleep(UPDATE_INTERVAL);
-                currLifecycleState = getLifecycle().getCurrentState();
             }
             Log.i(Config.TAG, "Closing data updater. ");
+
         } catch (IOException e) {
             Log.e(Config.TAG, "Input/Output Error occurred. Details: ", e);
         } catch (InterruptedException e) {
@@ -168,12 +178,15 @@ public class FormFragment extends Fragment {
         }
     }
 
+    /**
+     * Checks periorically if the data updater thread is still alive or not.
+     */
     private void checkConnection() {
         while(true) {
-            if (backgroundUpdate == null) {
+            if (dataUpdater == null) {
                 parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
                 return;
-            } else if (!backgroundUpdate.isAlive()) {
+            } else if (!dataUpdater.isAlive()) {
                 parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
                 return;
             }
@@ -215,5 +228,13 @@ public class FormFragment extends Fragment {
                 status = ControlStatus.UNDEFINED;
                 break;
         }
+    }
+
+    /**
+     * @param currLifecycleState the current lifecycle state of the fragment.
+     * @return true if the fragment is still in a runtime state (when it's not paused, stopped or destroyed), false if not.
+     */
+    private boolean isInRuntimeState(final Lifecycle.State currLifecycleState) {
+        return currLifecycleState != Lifecycle.State.DESTROYED && currLifecycleState != Lifecycle.State.CREATED;
     }
 }
