@@ -95,9 +95,11 @@ public class LoadFragment extends Fragment {
         }
         Log.i(Config.TAG, "Device picked: " + devicePicked.getName());
         updateComponents(Status.CONNECT);
-        btConnector = new BluetoothConnector(parentActivity, devicePicked, this::testConnection);
-        btConnector.start();
-        new Thread(this::waitForConnection).start();
+        if (btConnector == null) {
+            btConnector = new BluetoothConnector(parentActivity, devicePicked, this::testConnection);
+            btConnector.start();
+            new Thread(this::waitForConnection).start();
+        }
     }
 
     @Override
