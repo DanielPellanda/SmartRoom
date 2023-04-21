@@ -12,6 +12,7 @@ CommunicationTask::CommunicationTask(RoomState* currState, int rxPin, int txPin)
 void CommunicationTask::init(int period, ClockTask* clockTask, int* servoAngle, bool* lights) {
   Task::init(period);
   this->clock = clockTask->getClock();
+  this->btCommChannel->init();
   this->servoAngle = servoAngle;
   this->lights = lights;
 }
