@@ -29,6 +29,7 @@ void MsgServiceBT::receiveMsg(){
         break;
       case END_COMM:
         btConfig->setConfig(parsedMsg[REQ], parsedMsg[LIGHT], parsedMsg[RB]);
+        channel->flush();
         clearMsg();
         break;
       default:
