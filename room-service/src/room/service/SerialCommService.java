@@ -8,12 +8,11 @@ import room.service.channel.serial.SerialCommChannel;
  */
 public class SerialCommService implements CommService {
 	
-	private final long period = 210;
-	private Thread communicate;
+	private final long updatePeriod = 210;
 	private SerialCommChannel arduinoConnector;
 	private Database data;
 	
-	public SerialCommService(Database data) {
+	public SerialCommService(final Database data) {
 		this.data = data;
 		try {
 			arduinoConnector = new SerialCommChannel();
@@ -28,34 +27,13 @@ public class SerialCommService implements CommService {
 	 */
 	@Override
 	public void start() {
-		communicate = new Thread() {
-			@Override
-			public void run() {
-				while(true) {
-					String msg = "";
-					while(arduinoConnector.isMsgAvailable()) {
-						try {
-								msg = arduinoConnector.receiveMsg();
-								System.out.println("Arduino -> " + msg);
-							} catch (InterruptedException e) {
-								System.err.println("Interrupted while waiting for serial data...");
-							} catch (ArrayIndexOutOfBoundsException ea) {
-								System.err.println("Couldn't read received output...");
-							}
-					}
-					synchronized (data) {
-						arduinoConnector.sendMsg(data.getArduinoData());
-						data.updateArduinoData(msg);
-					}
-					try {
-						Thread.sleep(period);
-					} catch (InterruptedException e) {
-						System.err.println("Interrupted while sleeping for serial data...");
-					}
-				}
+		new Thread(() -> {
+			while(true) {
+				arduinoConnector.sendMsg(data.getArduinoData());
+				data.updateArduinoData(getArduinoStringMessage());
+				invokeSleep(updatePeriod);
 			}
-		};
-		communicate.start();
+		}).start();
 	}
 
 	@Override
@@ -66,5 +44,28 @@ public class SerialCommService implements CommService {
 			System.err.println(e.toString());
 			System.exit(25);
 		}	
+	}
+	
+	private String getArduinoStringMessage() {
+		String msg = "";
+		while(arduinoConnector.isMsgAvailable()) {
+			try {
+				msg = arduinoConnector.receiveMsg();
+				System.out.println("Arduino -> " + msg);
+			} catch (InterruptedException e) {
+				System.err.println("Interrupted while waiting for serial data...");
+			} catch (ArrayIndexOutOfBoundsException ea) {
+				System.err.println("Couldn't read received output...");
+			}
+		}
+		return msg;
+	}
+	
+	private void invokeSleep(final long sleepPeriod) {
+		try {
+			Thread.sleep(sleepPeriod);
+		} catch (InterruptedException e) {
+			System.err.println("Interrupted thread sleep...");
+		}
 	}
 }

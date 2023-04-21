@@ -20,14 +20,14 @@ public class HttpRequestObject {
 	private final Map<String, String> uriParameters = new HashMap<>();
 	private final String path;
 	private final String headers;
-	private Optional<String> postData = Optional.empty();
+	private String postData = null;
 	
 	public HttpRequestObject(final HttpExchange ex) {
 		path = ex.getRequestURI().getRawPath();
 		headers = parseHeaders(ex.getRequestHeaders());
 		parseQuery(uriParameters, ex.getRequestURI().getRawQuery());
 		try {
-			postData = Optional.ofNullable(new BufferedReader(new InputStreamReader(ex.getRequestBody(), "utf-8")).readLine());
+			postData = new BufferedReader(new InputStreamReader(ex.getRequestBody(), "utf-8")).readLine();
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -82,7 +82,7 @@ public class HttpRequestObject {
 	 * @return a string with the post data of the request.
 	 */
 	public Optional<String> getPostData() {
-		return postData;
+		return Optional.ofNullable(postData);
 	}
 	
 	/**

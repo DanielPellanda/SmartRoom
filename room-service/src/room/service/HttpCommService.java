@@ -18,7 +18,7 @@ public class HttpCommService implements CommService {
 	
 	private final int espPort = 5067;
 	private final int dashboardPort = 8120;
-	private final String networkHost = "wlan";
+	private final String networkHostPattern = "wlan";
 	private static final String IPV4_REGEX =
             "^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
             "(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\." +
@@ -32,7 +32,7 @@ public class HttpCommService implements CommService {
 		
 		try {
 			
-			final InetAddress wlanAddr = getWlanInterfaceAddress(); 
+			final InetAddress wlanAddr = getWlanInterfaceAddress(networkHostPattern); 
 			espConnector = new HttpChannel("ESP", new InetSocketAddress(wlanAddr, espPort));
 			dashboardConnector = new HttpChannel("Dashboard", new InetSocketAddress(wlanAddr, dashboardPort));
 			
@@ -77,10 +77,10 @@ public class HttpCommService implements CommService {
 	 * @throws UnknownHostException if there aren't available network interfaces that satisfy the requirement.
 	 * @throws SocketException if the socket encounters a problem.
 	 */
-	private InetAddress getWlanInterfaceAddress() throws UnknownHostException, SocketException {
+	private InetAddress getWlanInterfaceAddress(final String networkPattern) throws UnknownHostException, SocketException {
 		final Pattern ipv4Pattern = Pattern.compile(IPV4_REGEX);
 		for (NetworkInterface ie : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-			if (ie.getName().contains(networkHost)) {
+			if (ie.getName().contains(networkPattern)) {
 				for (InetAddress addr : Collections.list(ie.getInetAddresses())) {
 					if (ipv4Pattern.matcher(addr.getHostAddress()).matches()) {
 						return addr;
