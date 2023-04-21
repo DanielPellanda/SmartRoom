@@ -4,7 +4,7 @@
 #include "Arduino.h"
 
 class RemoteConfig {
-  bool request;
+  String request;
   bool light;
   int rollerBlinds;
 
@@ -18,6 +18,10 @@ class RemoteConfig {
     * true if is requested remote control
     */
     bool isCtrlReq();
+    /**
+    * true if is released remote control
+    */
+    bool isReleaseReq();
     /**
     * true if lights are set to be on
     */

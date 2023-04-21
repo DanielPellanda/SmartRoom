@@ -30,12 +30,12 @@ void CommunicationTask::tick() {
       }
       break;
     case BLUETOOTH:
-      if(!btConfig->isCtrlReq()){
+      if(!btConfig->isReleaseReq()){
         *currState = AUTO;
       }
       break;
     case DASHBOARD:
-      if(!dbConfig->isCtrlReq()){
+      if(!dbConfig->isReleaseReq()){
         *currState = AUTO;
       }
       break;
