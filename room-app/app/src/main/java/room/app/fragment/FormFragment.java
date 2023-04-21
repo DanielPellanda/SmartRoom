@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 import androidx.navigation.fragment.NavHostFragment;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,7 +35,6 @@ public class FormFragment extends Fragment {
     private static final long UPDATE_INTERVAL = 1000;
 
     private ControlStatus status = ControlStatus.AUTO;
-    private OutputStream outputWriter = null;
     private BluetoothConnector dataUpdater = null;
     private Activity parentActivity = null;
     private FormFragmentBinding binding = null;
@@ -63,8 +63,8 @@ public class FormFragment extends Fragment {
     public void onViewCreated(@NonNull final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         parentActivity = requireActivity();
-        binding.buttonApply.setOnClickListener(v -> new Thread(() -> writeMessage(ControlStatus.APP)).start());
-        binding.buttonRelease.setOnClickListener(v -> new Thread(() -> writeMessage(ControlStatus.AUTO)).start());
+        binding.buttonApply.setOnClickListener(v -> status = ControlStatus.APP);
+        binding.buttonRelease.setOnClickListener(v -> status = ControlStatus.AUTO);
         binding.seekbarRollb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -114,24 +114,49 @@ public class FormFragment extends Fragment {
 
     /**
      * Submits a request for the control of the room to Arduino.
-     * @param requestStatus the new room status to apply.
+     * @param output the OutputStream object to write the request.
+     * @throws IOException if OutputStream fails to write the request.
      */
-    private void writeMessage(final ControlStatus requestStatus) {
-        if (outputWriter == null) {
-            return;
+    private void writeMessage(final OutputStream output) throws IOException{
+        final String[] data = {
+                String.valueOf(status.getValue() == ControlStatus.APP.getValue() ? 1 : 0),
+                String.valueOf(binding.switchLight.isChecked() ? 1 : 0),
+                String.valueOf(binding.seekbarRollb.getProgress())
+        };
+        final String message = data[0] + ";" + data[1] + ";" + data[2] + "\n";
+        output.write(message.getBytes());
+        Log.i(Config.TAG, "Sent " + message.getBytes().length + " bytes to Arduino. Content:\n" + message);
+    }
+
+    /**
+     * Reads messages received from Arduino and updates the data with most recent one.
+     * @param input the InputStream object to read the buffer from.
+     * @param leftover a previous partial message received used to complete the data parse.
+     * @return a string representing a partial message received that couldn't be parsed.
+     * @throws IOException if InputStream fails to read the buffer.
+     */
+    private String readMessage(final InputStream input, final String leftover) throws IOException{
+        final int bytesAvailable = input.available();
+        if (bytesAvailable > 0) {
+            final byte[] buffer = new byte[bytesAvailable];
+            final int numBytes = input.read(buffer);
+            final String message = new String(buffer);
+            Log.i(Config.TAG, "Received " + numBytes + " bytes from Arduino. Content:\n" + message);
+
+            final String[] messageLines = (leftover+message).split("\n");
+            if (messageLines.length > 1) {
+                final String[] data = messageLines[messageLines.length-2].split(";");
+                parentActivity.runOnUiThread(() -> {
+                    try {
+                        updateStatusFromInt(Integer.parseInt(data[0]));
+                    } catch (NumberFormatException n) {
+                        Log.e(Config.TAG, "Invalid data format received.\n" + n);
+                    }
+                });
+            }
+            return messageLines[messageLines.length-1];
         }
-        try {
-            final String[] data = {
-                    String.valueOf(requestStatus.getValue()),
-                    String.valueOf(binding.switchLight.isChecked() ? 1 : 0),
-                    String.valueOf(binding.seekbarRollb.getProgress())
-            };
-            final String message = data[0] + ";" + data[1] + ";" + data[2] + "\n";
-            outputWriter.write(message.getBytes());
-            Log.i(Config.TAG, "Sent " + message.getBytes().length + " bytes to Arduino. Content:\n" + message);
-        } catch (IOException e) {
-            Log.e(Config.TAG, "Error occurred. Write in output stream failed. Details:", e);
-        }
+        return leftover;
     }
 
     /**
@@ -141,39 +166,21 @@ public class FormFragment extends Fragment {
     private void updateData(final BluetoothSocket socket) {
         Lifecycle.State currLifecycleState = getLifecycle().getCurrentState();
         try {
-            final InputStream input = socket.getInputStream();
-            outputWriter = socket.getOutputStream();
-            String bufferLeftover = "";
+            final BufferedInputStream input = new BufferedInputStream(socket.getInputStream());
+            final OutputStream output = socket.getOutputStream();
+            String leftover = "";
 
             Log.i(Config.TAG, "Initializing data updater. ");
             while (isInRuntimeState(currLifecycleState)) {
-                final int bytesAvailable = input.available();
-                if (bytesAvailable > 0) {
-                    final byte[] buffer = new byte[bytesAvailable];
-                    final int numBytes = input.read(buffer);
-                    final String message = new String(buffer);
-                    Log.i(Config.TAG, "Received " + numBytes + " bytes from Arduino. Content:\n" + message);
-
-                    final String[] messageLines = (bufferLeftover+message).split("\n");
-                    if (messageLines.length > 1) {
-                        final String[] data = messageLines[messageLines.length-2].split(";");
-                        parentActivity.runOnUiThread(() -> {
-                            try {
-                                updateStatusFromInt(Integer.parseInt(data[0]));
-                            } catch (NumberFormatException n) {
-                                Log.e(Config.TAG, "Invalid data format received.\n" + n);
-                            }
-                        });
-                    }
-                    bufferLeftover = messageLines[messageLines.length-1];
-                }
+                leftover = readMessage(input, leftover);
+                writeMessage(output);
                 Thread.sleep(UPDATE_INTERVAL);
                 currLifecycleState = getLifecycle().getCurrentState();
             }
             Log.i(Config.TAG, "Closing data updater. ");
 
         } catch (IOException e) {
-            Log.e(Config.TAG, "Input/Output Error occurred. Details: ", e);
+            Log.e(Config.TAG, "Input/Output error occurred. Details: ", e);
         } catch (InterruptedException e) {
             Log.e(Config.TAG, "Thread sleep interrupted. ", e);
         }
@@ -187,7 +194,8 @@ public class FormFragment extends Fragment {
             if (dataUpdater == null) {
                 parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
                 return;
-            } else if (!dataUpdater.isAlive()) {
+            }
+            if (!dataUpdater.isAlive()) {
                 parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
                 return;
             }
