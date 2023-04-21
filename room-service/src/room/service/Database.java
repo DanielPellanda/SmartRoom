@@ -12,9 +12,15 @@ import room.service.channel.http.HttpResponse;
  */
 class Database {
 	private class Request {
-		public int status = 0;
+		public int status = -1;
 		public int rollerBlind = 0;
 		public boolean light = false;
+		
+		public void reset() {
+			status = -1;
+			rollerBlind = 0;
+			light = false;
+		}
 	}
 	private Request request = new Request();
 	private boolean personDetected = false;
@@ -110,6 +116,7 @@ class Database {
 		String data = "";
 		synchronized (this) {
 			data = request.status + ";" + (request.light ? "1" : "0") + ";" + request.rollerBlind + ";" + (personDetected ? "1" : "0") + ";" + lightLevel;
+			request.reset();
 		}
 		return data;
 	}

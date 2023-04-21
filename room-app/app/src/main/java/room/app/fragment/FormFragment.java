@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
+import android.service.controls.Control;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,19 +35,18 @@ import room.app.databinding.FormFragmentBinding;
 public class FormFragment extends Fragment {
     private static final long UPDATE_INTERVAL = 1000;
 
-    private ControlStatus status = ControlStatus.AUTO;
+    private ControlStatus currStatus = ControlStatus.AUTO;
+    private ControlStatus requestStatus = null;
     private BluetoothConnector dataUpdater = null;
     private Activity parentActivity = null;
     private FormFragmentBinding binding = null;
 
-    private enum ControlStatus {UNDEFINED(-1), AUTO(0), DASHBOARD(1), APP(2);
+    private enum ControlStatus {
+        UNDEFINED(-1), AUTO(0), DASHBOARD(1), APP(2);
         private final int value;
+
         ControlStatus(final int value) {
             this.value = value;
-        }
-
-        int getValue() {
-            return value;
         }
     }
 
@@ -63,8 +63,8 @@ public class FormFragment extends Fragment {
     public void onViewCreated(@NonNull final View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         parentActivity = requireActivity();
-        binding.buttonApply.setOnClickListener(v -> status = ControlStatus.APP);
-        binding.buttonRelease.setOnClickListener(v -> status = ControlStatus.AUTO);
+        binding.buttonApply.setOnClickListener(v -> requestStatus = ControlStatus.APP);
+        binding.buttonRelease.setOnClickListener(v -> requestStatus = ControlStatus.AUTO);
         binding.seekbarRollb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -117,12 +117,13 @@ public class FormFragment extends Fragment {
      * @param output the OutputStream object to write the request.
      * @throws IOException if OutputStream fails to write the request.
      */
-    private void writeMessage(final OutputStream output) throws IOException{
+    private void writeMessage(final OutputStream output) throws IOException {
         final String[] data = {
-                String.valueOf(status.getValue() == ControlStatus.APP.getValue() ? 1 : 0),
+                String.valueOf(requestStatus != ControlStatus.UNDEFINED ? (requestStatus == ControlStatus.APP ? 1 : 0) : -1),
                 String.valueOf(binding.switchLight.isChecked() ? 1 : 0),
                 String.valueOf(binding.seekbarRollb.getProgress())
         };
+        requestStatus = ControlStatus.UNDEFINED;
         final String message = data[0] + ";" + data[1] + ";" + data[2] + "\n";
         output.write(message.getBytes());
         Log.i(Config.TAG, "Sent " + message.getBytes().length + " bytes to Arduino. Content:\n" + message);
@@ -216,25 +217,25 @@ public class FormFragment extends Fragment {
             case 0:
                 binding.buttonApply.setEnabled(true);
                 binding.buttonRelease.setEnabled(false);
-                binding.labelStatus.setText(status.name().toUpperCase());
-                status = ControlStatus.AUTO;
+                binding.labelStatus.setText(currStatus.name().toUpperCase());
+                currStatus = ControlStatus.AUTO;
                 break;
             case 1:
                 binding.buttonApply.setEnabled(false);
                 binding.buttonRelease.setEnabled(false);
-                binding.labelStatus.setText(status.name().toUpperCase());
-                status = ControlStatus.DASHBOARD;
+                binding.labelStatus.setText(currStatus.name().toUpperCase());
+                currStatus = ControlStatus.DASHBOARD;
             case 2:
                 binding.buttonApply.setEnabled(true);
                 binding.buttonRelease.setEnabled(true);
-                binding.labelStatus.setText(status.name().toUpperCase());
-                status = ControlStatus.APP;
+                binding.labelStatus.setText(currStatus.name().toUpperCase());
+                currStatus = ControlStatus.APP;
                 break;
             default:
                 binding.buttonApply.setEnabled(false);
                 binding.buttonRelease.setEnabled(false);
-                binding.labelStatus.setText(status.name().toUpperCase());
-                status = ControlStatus.UNDEFINED;
+                binding.labelStatus.setText(currStatus.name().toUpperCase());
+                currStatus = ControlStatus.UNDEFINED;
                 break;
         }
     }
