@@ -212,11 +212,13 @@ public class LoadFragment extends Fragment {
     }
 
     /**
-     * After retrieved the BluetoothDevice instance of the device selected by the user,
-     * the program proceeds to move the next fragment.
+     * Allows the application to proceed to the next fragment.
      */
     private void moveToNextFragment() {
-        ((MainActivity) parentActivity).setDevice(devicePicked);
-        parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment));
+        parentActivity.runOnUiThread(() -> {
+            ((MainActivity) parentActivity).setDevice(devicePicked);
+            ((MainActivity) parentActivity).getSupportFragmentManager().beginTransaction().remove(this).commit();
+            NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment);
+        });
     }
 }

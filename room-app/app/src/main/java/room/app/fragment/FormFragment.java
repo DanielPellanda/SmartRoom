@@ -34,18 +34,23 @@ import room.app.databinding.FormFragmentBinding;
 public class FormFragment extends Fragment {
     private static final long UPDATE_INTERVAL = 500;
 
-    private ControlStatus currStatus = ControlStatus.AUTO;
-    private ControlStatus requestStatus = null;
+    private ControlStatus requestStatus = ControlStatus.UNDEFINED;
     private BluetoothConnector dataUpdater = null;
     private Activity parentActivity = null;
     private FormFragmentBinding binding = null;
 
     private enum ControlStatus {
-        UNDEFINED(-1), AUTO(0), DASHBOARD(1), APP(2);
-        private final int value;
-
-        ControlStatus(final int value) {
-            this.value = value;
+        UNDEFINED, AUTO, DASHBOARD, APP;
+        public static ControlStatus fromInt(final int value) {
+            switch(value) {
+                case 0:
+                    return AUTO;
+                case 1:
+                    return DASHBOARD;
+                case 2:
+                    return APP;
+            }
+            return UNDEFINED;
         }
     }
 
@@ -159,7 +164,7 @@ public class FormFragment extends Fragment {
             final String[] data = messageLines[lineSelected].split(";");
             parentActivity.runOnUiThread(() -> {
                 try {
-                    updateStatusFromInt(Integer.parseInt(data[0]));
+                    updateStatus(ControlStatus.fromInt(Integer.parseInt(data[0])));
                 } catch (NumberFormatException n) {
                     Log.e(Config.TAG, "Invalid data format received.\n" + n);
                 }
@@ -183,7 +188,6 @@ public class FormFragment extends Fragment {
             while (isInRuntimeState(currLifecycleState)) {
                 leftover = readMessage(input, leftover);
                 writeMessage(output);
-                Log.i(Config.TAG, "Leftover:  " + leftover);
                 Thread.sleep(UPDATE_INTERVAL);
                 currLifecycleState = getLifecycle().getCurrentState();
             }
@@ -202,11 +206,11 @@ public class FormFragment extends Fragment {
     private void checkConnection() {
         while(true) {
             if (dataUpdater == null) {
-                parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
+                moveToPreviousFragment();
                 return;
             }
             if (!dataUpdater.isAlive()) {
-                parentActivity.runOnUiThread(() -> NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_form_to_load_fragment));
+                moveToPreviousFragment();
                 return;
             }
             try {
@@ -218,33 +222,36 @@ public class FormFragment extends Fragment {
     }
 
     /**
-     * Updates the current status of the room and the UI components related to it.
-     * @param value an integer value representing the new status to apply.
+     * Allows the application to proceed to the previous fragment.
      */
-    private void updateStatusFromInt(final int value) {
-        switch(value) {
-            case 0:
-                currStatus = ControlStatus.AUTO;
+    private void moveToPreviousFragment() {
+        parentActivity.runOnUiThread(() -> {
+            ((MainActivity) parentActivity).getSupportFragmentManager().beginTransaction().remove(this).commit();
+            NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_load_to_form_fragment);
+        });
+    }
+
+    /**
+     * Updates the current status of the room and the UI components related to it.
+     * @param nextStatus the next status to apply.
+     */
+    private void updateStatus(final ControlStatus nextStatus) {
+        binding.labelStatus.setText(nextStatus.name().toUpperCase());
+        switch(nextStatus) {
+            case AUTO:
                 binding.buttonApply.setEnabled(true);
                 binding.buttonRelease.setEnabled(false);
-                binding.labelStatus.setText(currStatus.name().toUpperCase());
                 break;
-            case 1:
-                currStatus = ControlStatus.DASHBOARD;
+            case DASHBOARD:
                 binding.buttonApply.setEnabled(false);
                 binding.buttonRelease.setEnabled(false);
-                binding.labelStatus.setText(currStatus.name().toUpperCase());
-            case 2:
-                currStatus = ControlStatus.APP;
+            case APP:
                 binding.buttonApply.setEnabled(true);
                 binding.buttonRelease.setEnabled(true);
-                binding.labelStatus.setText(currStatus.name().toUpperCase());
                 break;
             default:
-                currStatus = ControlStatus.UNDEFINED;
                 binding.buttonApply.setEnabled(false);
                 binding.buttonRelease.setEnabled(false);
-                binding.labelStatus.setText(currStatus.name().toUpperCase());
                 break;
         }
     }
