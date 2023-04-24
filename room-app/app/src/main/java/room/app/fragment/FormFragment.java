@@ -144,6 +144,7 @@ public class FormFragment extends Fragment {
             final String message = new String(buffer);
             Log.i(Config.TAG, "Received " + numBytes + " bytes from Arduino. Content:\n" + message);
 
+            Log.i(Config.TAG, "Processing " + (leftover+message));
             final String[] messageLines = (leftover+message).split("\n");
             if (messageLines.length > 1) {
                 final String[] data = messageLines[messageLines.length-2].split(";");
