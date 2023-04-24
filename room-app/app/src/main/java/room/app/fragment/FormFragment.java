@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
-import android.service.controls.Control;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -144,7 +143,6 @@ public class FormFragment extends Fragment {
             final String message = new String(buffer);
             Log.i(Config.TAG, "Received " + numBytes + " bytes from Arduino. Content:\n" + message);
 
-            Log.i(Config.TAG, "Processing " + (leftover+message));
             final String[] messageLines = (leftover+message).split("\n");
             if (messageLines.length > 1) {
                 final String[] data = messageLines[messageLines.length-2].split(";");
@@ -176,6 +174,7 @@ public class FormFragment extends Fragment {
             while (isInRuntimeState(currLifecycleState)) {
                 leftover = readMessage(input, leftover);
                 writeMessage(output);
+                Log.i(Config.TAG, "Leftover:  " + leftover);
                 Thread.sleep(UPDATE_INTERVAL);
                 currLifecycleState = getLifecycle().getCurrentState();
             }
