@@ -32,7 +32,7 @@ import room.app.databinding.FormFragmentBinding;
  * Class used for describing the behaviour of the form fragment.
  */
 public class FormFragment extends Fragment {
-    private static final long UPDATE_INTERVAL = 1000;
+    private static final long UPDATE_INTERVAL = 500;
 
     private ControlStatus currStatus = ControlStatus.AUTO;
     private ControlStatus requestStatus = null;
@@ -135,7 +135,8 @@ public class FormFragment extends Fragment {
      * @return a string representing a partial message received that couldn't be parsed.
      * @throws IOException if InputStream fails to read the buffer.
      */
-    private String readMessage(final InputStream input, final String leftover) throws IOException{
+    private String readMessage(final InputStream input, String leftover) throws IOException {
+        final int numParameters = 5;
         final int bytesAvailable = input.available();
         if (bytesAvailable > 0) {
             final byte[] buffer = new byte[bytesAvailable];
@@ -143,18 +144,26 @@ public class FormFragment extends Fragment {
             final String message = new String(buffer);
             Log.i(Config.TAG, "Received " + numBytes + " bytes from Arduino. Content:\n" + message);
 
-            final String[] messageLines = (leftover+message).split("\n");
-            if (messageLines.length > 1) {
-                final String[] data = messageLines[messageLines.length-2].split(";");
-                parentActivity.runOnUiThread(() -> {
-                    try {
-                        updateStatusFromInt(Integer.parseInt(data[0]));
-                    } catch (NumberFormatException n) {
-                        Log.e(Config.TAG, "Invalid data format received.\n" + n);
-                    }
-                });
+            final String messageProcessed = leftover+message;
+            final String[] messageLines = messageProcessed.split("\n");
+            int lineSelected = messageLines.length - 1;
+            leftover = "";
+            if (messageLines[lineSelected].split(";").length < numParameters) {
+                leftover = messageLines[lineSelected];
+                lineSelected--;
+                if (lineSelected < 0) {
+                    return leftover;
+                }
             }
-            return messageLines[messageLines.length-1];
+
+            final String[] data = messageLines[lineSelected].split(";");
+            parentActivity.runOnUiThread(() -> {
+                try {
+                    updateStatusFromInt(Integer.parseInt(data[0]));
+                } catch (NumberFormatException n) {
+                    Log.e(Config.TAG, "Invalid data format received.\n" + n);
+                }
+            });
         }
         return leftover;
     }
