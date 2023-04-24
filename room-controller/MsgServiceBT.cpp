@@ -1,5 +1,7 @@
 #include "MsgServiceBT.h"
 
+#define MAX_LENGTH 3
+
 MsgServiceBT::MsgServiceBT(int rxPin, int txPin, RemoteConfig* conf){
   channel = new SoftwareSerial(rxPin, txPin);
   btConfig = conf;
@@ -16,25 +18,27 @@ void MsgServiceBT::sendMsg(String msg){
 }
 
 void MsgServiceBT::receiveMsg(){
-  int i = 0;
+  int nchread = 0, i = 0;
   !channel->available() ? failedComm++ : failedComm = 0;
   if (failedComm == TIMEOUT) {
-    btConfig->setConfig("0","0","0");
+    btConfig->setConfig("0","0","100");
   }
-  while (channel->available()) {
+  while (channel->available() && nchread <= MAX_LENGTH) {
     char ch = (char) channel->read();
     switch(ch){
       case SEP:
+        nchread = 0;
         i++;
         break;
       case END_COMM:
         btConfig->setConfig(parsedMsg[REQ], parsedMsg[LIGHT], parsedMsg[RB]);
         channel->flush();
-        clearMsg();
         break;
       default:
+        nchread ++;
         parsedMsg[i] += ch;
         break;
     }
   }
+  clearMsg();
 }

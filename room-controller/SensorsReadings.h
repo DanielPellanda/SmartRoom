@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-#define YES "1"
+#define YES 1
 
 class SensorsReadings {
   bool isPresent;
