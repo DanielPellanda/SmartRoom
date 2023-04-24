@@ -8,6 +8,7 @@
 #define MSG_FIELDS 5
 #define SEP ';'
 #define END_COMM '\n'
+#define MAX_LENGTH 3
 
 class MsgServiceSerial {
   public:

@@ -1,17 +1,17 @@
 #include "RemoteConfig.h"
 
-#define ON "1"
-#define OFF "0"
+#define ON 1
+#define OFF 0
 
 RemoteConfig::RemoteConfig () {
-  request = "";
+  request = 0;
   light = false;
   rollerBlinds = 0;
 }
 
 void RemoteConfig::setConfig(String req, String lgt, String rb){
-  request = req;
-  lgt == ON ? light = true : light = false;
+  request = req.toInt();
+  lgt.toInt() == ON ? light = true : light = false;
   rollerBlinds = rb.toInt();
 }
 

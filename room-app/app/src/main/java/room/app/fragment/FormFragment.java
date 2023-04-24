@@ -32,7 +32,7 @@ import room.app.databinding.FormFragmentBinding;
  * Class used for describing the behaviour of the form fragment.
  */
 public class FormFragment extends Fragment {
-    private static final long UPDATE_INTERVAL = 1000;
+    private static final long UPDATE_INTERVAL = 500;
 
     private ControlStatus currStatus = ControlStatus.AUTO;
     private ControlStatus requestStatus = null;

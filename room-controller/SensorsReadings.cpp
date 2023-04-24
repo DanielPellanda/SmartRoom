@@ -6,7 +6,7 @@ SensorsReadings::SensorsReadings(){
 }
 
 void SensorsReadings::setReadings(String presence, String lightLvl){
-  presence == YES ? isPresent = true : isPresent = false;
+  presence.toInt() == YES ? isPresent = true : isPresent = false;
   this->lightLvl = lightLvl.toInt();
 }
 

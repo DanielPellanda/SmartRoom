@@ -24,23 +24,25 @@ void clearMsg(){
 }
 
 void MsgServiceSerial::receiveMsg() {
-  int i = 0;
+  int nchread = 0, i = 0;
   /* reading the content */
-  while (Serial.available()) {
+  while (Serial.available() && nchread <= MAX_LENGTH) {
     char ch = (char) Serial.read();
     switch(ch){
       case SEP:
+        nchread = 0;
         i++;
         break;
       case END_COMM:
         dbConfig->setConfig(parsedMsg[REQ], parsedMsg[LIGHT], parsedMsg[RB]);
         sensors->setReadings(parsedMsg[SOMEONE], parsedMsg[LIGHTSENS]);
-        clearMsg();
         Serial.flush();
         break;
       default:
+        nchread ++;
         parsedMsg[i] += ch;
         break;
     }
   }
+  clearMsg();
 }
