@@ -215,27 +215,27 @@ public class FormFragment extends Fragment {
     private void updateStatusFromInt(final int value) {
         switch(value) {
             case 0:
+                currStatus = ControlStatus.AUTO;
                 binding.buttonApply.setEnabled(true);
                 binding.buttonRelease.setEnabled(false);
                 binding.labelStatus.setText(currStatus.name().toUpperCase());
-                currStatus = ControlStatus.AUTO;
                 break;
             case 1:
+                currStatus = ControlStatus.DASHBOARD;
                 binding.buttonApply.setEnabled(false);
                 binding.buttonRelease.setEnabled(false);
                 binding.labelStatus.setText(currStatus.name().toUpperCase());
-                currStatus = ControlStatus.DASHBOARD;
             case 2:
+                currStatus = ControlStatus.APP;
                 binding.buttonApply.setEnabled(true);
                 binding.buttonRelease.setEnabled(true);
                 binding.labelStatus.setText(currStatus.name().toUpperCase());
-                currStatus = ControlStatus.APP;
                 break;
             default:
+                currStatus = ControlStatus.UNDEFINED;
                 binding.buttonApply.setEnabled(false);
                 binding.buttonRelease.setEnabled(false);
                 binding.labelStatus.setText(currStatus.name().toUpperCase());
-                currStatus = ControlStatus.UNDEFINED;
                 break;
         }
     }
