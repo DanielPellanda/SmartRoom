@@ -42,9 +42,10 @@ function onWindowClose(e) {
 }
 
 //Updates the current status of the room and releted GUI elements
-function updateStatus(status) {
-	if (status == null) return;
-	current_status = status;
+function updateStatus(state) {
+	if (state == null) return;
+	current_status = state;
+	console.log("Status processed: " + state);
 	switch(current_status) {
 		case status_auto:
 			document.getElementById(id_status).innerHTML = "Status: <b>AUTO</b>";
