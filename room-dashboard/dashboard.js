@@ -193,7 +193,7 @@ function applyOnClick() {
 	if (req == null) {
 		return;
 	}
-	req.onreadystatechange(function(){
+	req.onreadystatechange = function(){
 		document.getElementById(id_button).disabled = false;
 		document.getElementById(id_btn_release).disabled = false;
 		if (this.readyState == 4 && this.status == 200) {
@@ -204,7 +204,7 @@ function applyOnClick() {
 		setTimeout(function(){
 			document.getElementById(id_btn_label).innerHTML = "";
 		}, confirmation_msg_reset);
-	});
+	};
 	req.open("POST", "accessControl", true);
 	req.send("status="+status_dash+"&light="+light+"&roll="+roll);
 }
