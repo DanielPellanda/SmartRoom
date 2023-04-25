@@ -206,11 +206,17 @@ public class FormFragment extends Fragment {
     private void checkConnection() {
         while(true) {
             if (dataUpdater == null) {
-                Toast.makeText(parentActivity.getApplicationContext(), getString(R.string.toast_disconnect_msg), Toast.LENGTH_LONG).show();
+                // Add disconnect message
+
+                // Doesn't work
+                //Toast.makeText(parentActivity.getApplicationContext(), getString(R.string.toast_disconnect_msg), Toast.LENGTH_LONG).show();
                 return;
             }
             if (!dataUpdater.isAlive()) {
-                Toast.makeText(parentActivity.getApplicationContext(), getString(R.string.toast_disconnect_msg), Toast.LENGTH_LONG).show();
+                // Add disconnect message
+
+                // Doesn't work 
+                //Toast.makeText(parentActivity.getApplicationContext(), getString(R.string.toast_disconnect_msg), Toast.LENGTH_LONG).show();
                 return;
             }
             try {
