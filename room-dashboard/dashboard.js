@@ -45,6 +45,7 @@ function onWindowClose(e) {
 function updateStatus(state) {
 	if (state == null) return;
 	current_status = state;
+	console.log("Status processed: " + state);
 	switch(current_status) {
 		case status_auto:
 			document.getElementById(id_status).innerHTML = "Status: <b>AUTO</b>";
