@@ -3,7 +3,7 @@
 
 #define HRS_FORMAT 24
 #define HOUR 60
-#define SKIP 3
+#define SKIP 5
 
 class Clock {
   int hours;

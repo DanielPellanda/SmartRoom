@@ -4,9 +4,9 @@
 #include "Arduino.h"
 
 class RemoteConfig {
-  int request;
+  long request;
   bool light;
-  int rollerBlinds;
+  long rollerBlinds;
 
   public:
     RemoteConfig ();

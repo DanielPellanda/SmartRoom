@@ -14,7 +14,6 @@ void RoomControlTask::init(int period, ClockTask* clockTask, CommunicationTask* 
   this->dbConfig = commTask->getDBConfig();
   this->sens = commTask->getSensorsReadings();
   this->clock = clockTask->getClock();
-  angle(UNROLLED);
   Task::init(period);
 }
 
@@ -50,6 +49,7 @@ void RoomControlTask:: rollerBlindsRules(){
     }
   } else{
     if(*currAngle == UNROLLED && sens->isSomeoneInRoom()){
+      Serial.println(*currAngle);
       angle(ROLLED_UP);
     }
   }

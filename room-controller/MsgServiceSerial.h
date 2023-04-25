@@ -8,12 +8,9 @@
 #define MSG_FIELDS 5
 #define SEP ';'
 #define END_COMM '\n'
-#define MAX_LENGTH 3
 
 class MsgServiceSerial {
   public:
-    RemoteConfig* dbConfig = nullptr;
-    SensorsReadings* sensors = nullptr;
 
     MsgServiceSerial(SensorsReadings* sens, RemoteConfig* conf);
     /**
@@ -24,6 +21,19 @@ class MsgServiceSerial {
     * receives a message from the serial line
     */
     void receiveMsg();
+
+  private:
+    enum {REQ, LIGHT, RB, SOMEONE, LIGHTSENS};
+    RemoteConfig* dbConfig = nullptr;
+    SensorsReadings* sensors = nullptr;
+    String parsedMsg[MSG_FIELDS];
+    int index = 0;
+
+    void clearMsg(){
+      for (int i = 0; i < MSG_FIELDS; i ++ ){
+        parsedMsg[i] = "";
+      }
+    }
 };
 
 #endif

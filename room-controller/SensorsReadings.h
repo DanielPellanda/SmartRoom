@@ -7,7 +7,7 @@
 
 class SensorsReadings {
   bool isPresent;
-  int lightLvl;
+  long lightLvl;
   
   public:
     SensorsReadings();

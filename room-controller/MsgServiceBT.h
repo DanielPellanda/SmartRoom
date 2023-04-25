@@ -29,7 +29,7 @@ class MsgServiceBT {
     SoftwareSerial* channel = nullptr;
     String parsedMsg[NUM_PARAM];
     RemoteConfig* btConfig = nullptr;
-    int failedComm;
+    int failedComm, index;
   
     void clearMsg(){
       for (int i = 0; i < NUM_PARAM; i ++ ){

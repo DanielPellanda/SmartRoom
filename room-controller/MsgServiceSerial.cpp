@@ -1,48 +1,32 @@
 #include "MsgServiceSerial.h"
 
-enum {REQ, LIGHT, RB, SOMEONE, LIGHTSENS};
-
-RemoteConfig* dbConfig;
-
-SensorsReadings* sensors;
-
-String parsedMsg[MSG_FIELDS];
-
 MsgServiceSerial::MsgServiceSerial(SensorsReadings* sens, RemoteConfig* conf){
-  this->sensors = sensors = sens;
-  this->dbConfig = dbConfig = conf;
+  this->sensors = sens;
+  this->dbConfig = conf;
 }
 
 void MsgServiceSerial::sendMsg(String msg){
-  Serial.println(msg);  
-}
-
-void clearMsg(){
-  for (int i = 0; i < MSG_FIELDS; i ++ ){
-    parsedMsg[i] = "";
-  }
+  Serial.println(msg);
+  Serial.flush(); /* Da Arduino 1.0 aspetta che abbia finito di inviare il messaggio */
 }
 
 void MsgServiceSerial::receiveMsg() {
-  int nchread = 0, i = 0;
   /* reading the content */
-  while (Serial.available() && nchread <= MAX_LENGTH) {
+  while (Serial.available()) {
     char ch = (char) Serial.read();
     switch(ch){
       case SEP:
-        nchread = 0;
-        i++;
+        index++;
         break;
       case END_COMM:
         dbConfig->setConfig(parsedMsg[REQ], parsedMsg[LIGHT], parsedMsg[RB]);
         sensors->setReadings(parsedMsg[SOMEONE], parsedMsg[LIGHTSENS]);
-        Serial.flush();
+        clearMsg();
+        index = 0;
         break;
       default:
-        nchread ++;
-        parsedMsg[i] += ch;
+        parsedMsg[index] += ch;
         break;
     }
   }
-  clearMsg();
 }
