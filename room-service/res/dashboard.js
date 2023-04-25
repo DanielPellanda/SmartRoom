@@ -258,7 +258,7 @@ function getDataFromServer() {
 //Function that handles the runtime behaviour of the page, it executes once every clock tick.
 function runtime() {
 	getDataFromServer();
-	if (system_time_ctrl_obtained > 0 && (Date.now()-system_time_ctrl_obtained) >= control_lock_time) {
+	if (system_time_ctrl_obtained > 0 && (Date.now()-system_time_ctrl_obtained) >= control_lock_time_mins) {
 		releaseControlLock();
 	}
 	setTimeout(runtime, clock);
