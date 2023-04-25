@@ -18,7 +18,7 @@ let id_btn_label = "lblMessage";
 
 let last_det_time = null;
 let current_time = null;
-let current_status = status_auto;
+let current_status = -1;
 let is_light_on = false;
 let form_interaction = false;
 let first_update = true;
@@ -45,8 +45,7 @@ function onWindowClose(e) {
 function updateStatus(state) {
 	if (state == null) return;
 	current_status = state;
-	console.log("Status processed: " + state);
-	switch(current_status) {
+	switch(Number(current_status)) {
 		case status_auto:
 			document.getElementById(id_status).innerHTML = "Status: <b>AUTO</b>";
 			system_time_ctrl_obtained = 0;
