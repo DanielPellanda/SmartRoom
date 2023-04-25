@@ -16,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
-import androidx.navigation.fragment.NavHostFragment;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -124,7 +123,7 @@ public class FormFragment extends Fragment {
      */
     private void writeMessage(final OutputStream output) throws IOException {
         final String[] data = {
-                String.valueOf(requestStatus != ControlStatus.UNDEFINED ? (requestStatus == ControlStatus.APP ? 1 : 0) : -1),
+                String.valueOf(requestStatus != ControlStatus.UNDEFINED ? (requestStatus == ControlStatus.APP ? 1 : 2) : 0),
                 String.valueOf(binding.switchLight.isChecked() ? 1 : 0),
                 String.valueOf(binding.seekbarRollb.getProgress())
         };

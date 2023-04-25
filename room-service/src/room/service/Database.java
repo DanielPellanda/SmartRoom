@@ -12,12 +12,12 @@ import room.service.channel.http.HttpResponse;
  */
 class Database {
 	private class Request {
-		public int status = -1;
+		public int status = 0;
 		public int rollerBlind = 0;
 		public boolean light = false;
 		
 		public void reset() {
-			status = -1;
+			status = 0;
 			rollerBlind = 0;
 			light = false;
 		}
@@ -95,13 +95,16 @@ class Database {
 		
 		synchronized(this) {
 			 if (postArgs.containsKey("status")) {
-				 this.request.status = Integer.parseInt(postArgs.get("status"));
+				this.request.status = Integer.parseInt(postArgs.get("status"));
+				if (request.status == 0) {
+					request.status = 2;
+				}
 			 }
 			 if (postArgs.containsKey("light")) {
-				 this.request.light = postArgs.get("light").compareTo("1") == 0;
+				this.request.light = postArgs.get("light").compareTo("1") == 0;
 			 }
 			 if (postArgs.containsKey("roll")) {
-				 this.request.rollerBlind = Integer.parseInt(postArgs.get("roll"));
+				this.request.rollerBlind = Integer.parseInt(postArgs.get("roll"));
 			 }
 		}
 		
