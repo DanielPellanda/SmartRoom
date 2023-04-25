@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -206,11 +207,11 @@ public class FormFragment extends Fragment {
     private void checkConnection() {
         while(true) {
             if (dataUpdater == null) {
-                moveToPreviousFragment();
+                Toast.makeText(parentActivity.getApplicationContext(), getString(R.string.toast_disconnect_msg), Toast.LENGTH_LONG).show();
                 return;
             }
             if (!dataUpdater.isAlive()) {
-                moveToPreviousFragment();
+                Toast.makeText(parentActivity.getApplicationContext(), getString(R.string.toast_disconnect_msg), Toast.LENGTH_LONG).show();
                 return;
             }
             try {
@@ -219,16 +220,6 @@ public class FormFragment extends Fragment {
                 Log.e(Config.TAG, "Thread sleep interrupted. ", e);
             }
         }
-    }
-
-    /**
-     * Allows the application to proceed to the previous fragment.
-     */
-    private void moveToPreviousFragment() {
-        parentActivity.runOnUiThread(() -> {
-            ((MainActivity) parentActivity).getSupportFragmentManager().beginTransaction().remove(this).commit();
-            NavHostFragment.findNavController(FormFragment.this).navigate(R.id.action_load_to_form_fragment);
-        });
     }
 
     /**
@@ -242,13 +233,12 @@ public class FormFragment extends Fragment {
                 binding.buttonApply.setEnabled(true);
                 binding.buttonRelease.setEnabled(false);
                 break;
-            case DASHBOARD:
-                binding.buttonApply.setEnabled(false);
-                binding.buttonRelease.setEnabled(false);
             case APP:
                 binding.buttonApply.setEnabled(true);
                 binding.buttonRelease.setEnabled(true);
                 break;
+            case DASHBOARD:
+            case UNDEFINED:
             default:
                 binding.buttonApply.setEnabled(false);
                 binding.buttonRelease.setEnabled(false);

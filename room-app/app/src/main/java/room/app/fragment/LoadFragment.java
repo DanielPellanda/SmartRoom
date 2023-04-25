@@ -217,7 +217,6 @@ public class LoadFragment extends Fragment {
     private void moveToNextFragment() {
         parentActivity.runOnUiThread(() -> {
             ((MainActivity) parentActivity).setDevice(devicePicked);
-            ((MainActivity) parentActivity).getSupportFragmentManager().beginTransaction().remove(this).commit();
             NavHostFragment.findNavController(LoadFragment.this).navigate(R.id.action_load_to_form_fragment);
         });
     }

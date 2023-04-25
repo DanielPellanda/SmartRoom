@@ -18,4 +18,6 @@
     <string name="label_load_str_fail_conn">Cannot connect to requested device.\n</string>
     <string name="label_load_str_timeout">Connection timed out.</string>
 
+    <string name="toast_disconnect_msg">You have been disconnected from the device.\nClose the app to reconnect again.</string>
+
 </resources>
