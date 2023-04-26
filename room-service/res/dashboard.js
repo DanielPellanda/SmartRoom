@@ -25,7 +25,7 @@ let first_update = true;
 let applyPressed = false;
 let system_time_ctrl_obtained = 0
 let control_lock_time_mins = 60 * 1000;
-let clock = 1000;
+let clock = 200;
 
 let time_scheme = [];
 for (var i = 0; i < 24; i++) {

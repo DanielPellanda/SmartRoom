@@ -25,7 +25,9 @@ void MsgServiceSerial::receiveMsg() {
         index = 0;
         break;
       default:
-        parsedMsg[index] += ch;
+        if(isDigit(ch)){
+          parsedMsg[index] += ch;
+        }
         break;
     }
   }

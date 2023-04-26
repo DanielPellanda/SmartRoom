@@ -33,9 +33,9 @@ class MsgServiceBT {
   
     void clearMsg(){
       for (int i = 0; i < NUM_PARAM; i ++ ){
-       parsedMsg[i] = "";
-     }
-   }
+        parsedMsg[i] = "";
+      }
+    }
 };
 
 #endif

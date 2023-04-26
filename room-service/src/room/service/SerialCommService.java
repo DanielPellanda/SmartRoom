@@ -8,7 +8,7 @@ import room.service.channel.serial.SerialCommChannel;
  */
 public class SerialCommService implements CommService {
 	
-	private final long updatePeriod = 210;
+	private final long updatePeriod = 200;
 	private SerialCommChannel arduinoConnector;
 	private Database data;
 	

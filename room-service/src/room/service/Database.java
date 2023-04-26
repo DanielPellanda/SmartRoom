@@ -18,8 +18,6 @@ class Database {
 		
 		public void reset() {
 			status = 0;
-			rollerBlind = 0;
-			light = false;
 		}
 	}
 	private Request request = new Request();
