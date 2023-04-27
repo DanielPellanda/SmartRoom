@@ -6,6 +6,9 @@ import java.net.UnknownHostException;
 
 import jssc.SerialPortException;
 
+/**
+ * The main class that handles the server.
+ */
 public class ServiceManager {
 	
 	private final Database data = new Database();
