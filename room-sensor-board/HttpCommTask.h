@@ -7,7 +7,7 @@
 class HttpCommTask {
   const char* ssid = "EOLO - FRITZ!Box 7430 GC";
   const char* password = "29721512722134519707";
-  const char* serverURL = "http://192.168.178.119:9000";
+  const char* serverURL = "http://192.168.178.119:5067";
   bool* someone;
   int* light;
   /**

@@ -40,6 +40,7 @@ void CommunicationTask::tick() {
       }
       break;
     default:
+      *currState = AUTO;
       break;
   }
 

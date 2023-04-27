@@ -30,6 +30,7 @@ class MsgServiceSerial {
     int index = 0;
 
     void clearMsg(){
+      index = 0;
       for (int i = 0; i < MSG_FIELDS; i ++ ){
         parsedMsg[i] = "";
       }

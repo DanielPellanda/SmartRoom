@@ -7,12 +7,16 @@ MsgServiceSerial::MsgServiceSerial(SensorsReadings* sens, RemoteConfig* conf){
 
 void MsgServiceSerial::sendMsg(String msg){
   Serial.println(msg);
-  Serial.flush(); /* Da Arduino 1.0 aspetta che abbia finito di inviare il messaggio */
 }
 
 void MsgServiceSerial::receiveMsg() {
+  if(index >= MSG_FIELDS){
+    dbConfig->setConfig("0","0","100");
+    sensors->setReadings("0", "0");
+    clearMsg();
+  }
   /* reading the content */
-  while (Serial.available()) {
+  while (Serial.available() && index < MSG_FIELDS) {
     char ch = (char) Serial.read();
     switch(ch){
       case SEP:
@@ -22,10 +26,11 @@ void MsgServiceSerial::receiveMsg() {
         dbConfig->setConfig(parsedMsg[REQ], parsedMsg[LIGHT], parsedMsg[RB]);
         sensors->setReadings(parsedMsg[SOMEONE], parsedMsg[LIGHTSENS]);
         clearMsg();
-        index = 0;
         break;
       default:
-        parsedMsg[index] += ch;
+        if(isDigit(ch)){
+          parsedMsg[index] += ch;
+        }
         break;
     }
   }

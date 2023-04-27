@@ -1,7 +1,7 @@
 #include "RemoteConfig.h"
 
 #define ON 1
-#define OFF 0
+#define OFF 2
 
 RemoteConfig::RemoteConfig () {
   request = 0;
