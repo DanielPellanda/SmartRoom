@@ -17,11 +17,11 @@ void MsgServiceBT::sendMsg(String msg){
 
 void MsgServiceBT::receiveMsg(){
   !channel->available() ? failedComm++ : failedComm = 0;
-  if (failedComm == TIMEOUT) {
+  if (failedComm == TIMEOUT || index >= NUM_PARAM) {
     btConfig->setConfig("0","0","100");
-    index = 0;
+    clearMsg();
   }
-  while (channel->available()) {
+  while (channel->available() > 0 && index < NUM_PARAM) {
     char ch = (char) channel->read();
     switch(ch){
       case SEP:
@@ -30,7 +30,6 @@ void MsgServiceBT::receiveMsg(){
       case END_COMM:
         btConfig->setConfig(parsedMsg[REQ], parsedMsg[LIGHT], parsedMsg[RB]);
         clearMsg();
-        index = 0;
         break;
       default:
         if(isDigit(ch)){
@@ -39,5 +38,4 @@ void MsgServiceBT::receiveMsg(){
         break;
     }
   }
-
 }

@@ -11,6 +11,7 @@ RoomState state;
 
 void setup(){
   Serial.begin(9600);
+  while (!Serial){}
   state = AUTO;
   ClockTask* clockTask = new ClockTask(&state);
   RoomControlTask* roomControl = new RoomControlTask(&state, LED_PIN, SERVO_PIN);

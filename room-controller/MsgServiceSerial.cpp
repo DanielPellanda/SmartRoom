@@ -7,7 +7,6 @@ MsgServiceSerial::MsgServiceSerial(SensorsReadings* sens, RemoteConfig* conf){
 
 void MsgServiceSerial::sendMsg(String msg){
   Serial.println(msg);
-  Serial.flush(); /* Da Arduino 1.0 aspetta che abbia finito di inviare il messaggio */
 }
 
 void MsgServiceSerial::receiveMsg() {
@@ -22,7 +21,6 @@ void MsgServiceSerial::receiveMsg() {
         dbConfig->setConfig(parsedMsg[REQ], parsedMsg[LIGHT], parsedMsg[RB]);
         sensors->setReadings(parsedMsg[SOMEONE], parsedMsg[LIGHTSENS]);
         clearMsg();
-        index = 0;
         break;
       default:
         if(isDigit(ch)){
