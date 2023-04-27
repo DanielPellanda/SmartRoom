@@ -11,9 +11,6 @@ import java.util.regex.Pattern;
 
 import room.service.channel.http.HttpChannel;
 
-/**
- * The main class that handles the server.
- */
 public class HttpCommService implements CommService {
 	
 	private static final String IPV4_REGEX =
