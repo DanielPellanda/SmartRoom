@@ -9,22 +9,21 @@ import room.service.channel.serial.SerialCommChannel;
 public class SerialCommService implements CommService {
 	
 	private final long updatePeriod = 210;
-	private SerialCommChannel arduinoConnector;
-	private Database data;
 	
-	public SerialCommService(final Database data) {
+	private final SerialCommChannel arduinoConnector;
+	private final Database data;
+	
+	/**
+	 * @param data the Database object where store the data.
+	 * @throws SerialPortException if the serial port fails to connect.
+	 * @throws IllegalArgumentException if the Arduino connector cannot instantiate his storage. 
+	 */
+	public SerialCommService(final Database data) throws SerialPortException, IllegalArgumentException {
 		this.data = data;
-		try {
-			arduinoConnector = new SerialCommChannel();
-		} catch (Exception e) {
-			System.err.println(e.toString());
-			System.exit(1);
-		}
+		arduinoConnector = new SerialCommChannel();
 	}
 
-	/**
-	 * Begins the execution of the server.
-	 */
+
 	@Override
 	public void start() {
 		new Thread(() -> {

@@ -9,13 +9,13 @@ import jssc.*;
  * @author aricci
  *
  */
-public class SerialCommChannel implements CommChannel, SerialPortEventListener {
+public class SerialCommChannel implements SerialPortEventListener {
 
-	private SerialPort serialPort;
-	private BlockingQueue<String> queue;
+	private final SerialPort serialPort;
+	private final BlockingQueue<String> queue;
 	private StringBuffer currentMsg = new StringBuffer("");
 	
-	public SerialCommChannel() throws Exception {
+	public SerialCommChannel() throws SerialPortException, IllegalArgumentException {
 		queue = new ArrayBlockingQueue<String>(100);
 
 		serialPort = new SerialPort(searchPort());
@@ -32,7 +32,7 @@ public class SerialCommChannel implements CommChannel, SerialPortEventListener {
 		serialPort.addEventListener(this);
 	}
 
-	@Override
+	
 	public void sendMsg(String msg) {
 		char[] array = (msg+"\n").toCharArray();
 		byte[] bytes = new byte[array.length];
@@ -49,12 +49,11 @@ public class SerialCommChannel implements CommChannel, SerialPortEventListener {
 		System.out.println("Arduino <- " + msg);
 	}
 
-	@Override
+	
 	public String receiveMsg() throws InterruptedException {
 		return queue.take();
 	}
 
-	@Override
 	public boolean isMsgAvailable() {
 		return !queue.isEmpty();
 	}
@@ -65,14 +64,14 @@ public class SerialCommChannel implements CommChannel, SerialPortEventListener {
 	 * @throws SerialPortException 
 	 */
 	public void close() throws SerialPortException {
-			if (serialPort != null) {
-				serialPort.removeEventListener();
-				serialPort.closePort();
-			}
+		if (serialPort != null) {
+			serialPort.removeEventListener();
+			serialPort.closePort();
+		}
 	}
 
 
-	public void serialEvent(SerialPortEvent event) {
+	public void serialEvent(final SerialPortEvent event) {
 		/* if there are bytes received in the input buffer */
 		if (event.isRXCHAR()) {
             try {
@@ -106,16 +105,18 @@ public class SerialCommChannel implements CommChannel, SerialPortEventListener {
 	}
 	
 	/**
-	 * returns the serial port connected to arduino
-	 * 
-	 * @author mdPellanda
+	 * @return the serial port connected to arduino.
 	 */
 	private String searchPort() {
+		final String pattern = "Arduino Uno";
+		final String failString = "null";
+		
 		 for (Object port : com.fazecast.jSerialComm.SerialPort.getCommPorts()) {
-			 if (port.toString().contains("Arduino Uno")) {
+			 if (port.toString().contains(pattern)) {
 				 return port.toString().substring(13, 17);
 			 }
 		 }
-		 return "null";
+		
+		 return failString;
 	}
 }

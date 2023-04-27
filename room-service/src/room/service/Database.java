@@ -22,6 +22,7 @@ class Database {
 			light = false;
 		}
 	}
+	
 	private Request request = new Request();
 	private boolean personDetected = false;
 	private boolean lightOn = false;

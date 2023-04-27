@@ -15,7 +15,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
 /**
- * A class that handles a Http server.
+ * A class that handles a HTTP server.
  */
 public class HttpChannel {
 	
@@ -36,7 +36,7 @@ public class HttpChannel {
 	}
 	
 	/**
-	 * Begins the execution of the Http server.
+	 * Begins the execution of the HTTP server.
 	 */
 	public void start() {
 		server.start();
@@ -45,7 +45,7 @@ public class HttpChannel {
 	}
 
 	/**
-	 * Closes the Http server.
+	 * Closes the HTTP server.
 	 */
 	public void close() {
 		if (hasStarted) {
@@ -54,9 +54,9 @@ public class HttpChannel {
 	}
 	
 	/**
-	 * Add to the server a way to handle a specified uri request.
-	 * @param uri the uri to handle.
-	 * @param response a function with the response the server should send when the uri is requested.
+	 * Add to the server a way to handle a specified URI request.
+	 * @param uri the URI to handle.
+	 * @param response a function with the response the server should send when the URI is requested.
 	 */
 	public void addHandler(final String uri, final Function<HttpRequestObject, HttpResponse> response) {
 		if (!hasStarted) {
@@ -73,7 +73,7 @@ public class HttpChannel {
 	
 	/**
 	 * Gets the specified resource requested by a client.
-	 * @param req the http request object with the resource requested.
+	 * @param req the HTTP request object with the resource requested.
 	 * @return the resource requested.
 	 */
 	private HttpResponse getHttpResource(final HttpRequestObject req) {
@@ -103,7 +103,7 @@ public class HttpChannel {
 	}
 	
 	/**
-	 * A class that works as uri handler for the server requests.
+	 * A class that works as URI handler for the server requests.
 	 */
 	public class BasicHandler implements HttpHandler {
 		
@@ -119,11 +119,11 @@ public class HttpChannel {
 			final HttpResponse response = processResponse.apply(obj);
 			exchange.sendResponseHeaders(response.getEsitCode(), response.getSize());
 			
-            OutputStream os = exchange.getResponseBody();
+            final OutputStream os = exchange.getResponseBody();
             os.write(response.getResponse().getBytes());
             os.close();
             
-            System.out.println(servername + " received HTTP request for " + obj.getPath() + ". Response sent: \n" + response.getResponse());
+            //System.out.println(servername + " received HTTP request for " + obj.getPath() + ". Response sent: \n" + response.getResponse());
 		}
 	}
 }
