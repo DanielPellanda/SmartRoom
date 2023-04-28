@@ -1,10 +1,5 @@
 #include "HttpCommTask.h"
 
-HttpCommTask::HttpCommTask(bool* someone, int* light){
-  this-> someone = someone;
-  this-> light = light;
-}
-
 void HttpCommTask::connectToWifi(){
   WiFi.begin(ssid, password);
   Serial.println("Connecting");
@@ -13,8 +8,7 @@ void HttpCommTask::connectToWifi(){
     Serial.print(".");
   }
   Serial.println("");
-  Serial.print("Connected to WiFi network with IP Address: ");
-  Serial.println(WiFi.localIP());
+  Serial.println("Connected to WiFi network");
 }
 
 void HttpCommTask::init() {
@@ -26,21 +20,22 @@ int HttpCommTask::sendMsg(String msg){
   HTTPClient http;
 
   http.begin(client, serverURL);      
-  http.addHeader("Content-Type", "text/plain");   
+  http.addHeader("Content-Type", "text/plain");
   int retCode = http.POST(msg);   
   http.end();  
 
   return retCode;
 }
 
-void HttpCommTask::tick() {
+void HttpCommTask::tick(bool someone, int light) {
   String msg;
   int code;
 
   if (WiFi.status()== WL_CONNECTED){
     // creating message   
-    *someone ? msg = "1;" : msg = "0;";
-    msg += String(*light);
+    someone ? msg = "1;" : msg = "0;";
+    msg += String(light);
+    Serial.println(msg);
     // sending message
     code = sendMsg(msg);
     //checking errors

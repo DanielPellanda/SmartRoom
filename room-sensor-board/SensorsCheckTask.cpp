@@ -6,32 +6,35 @@ SensorsCheckTask::SensorsCheckTask(int pinLs, int pinPir, int pinLed){
   this->led = new Led(pinLed);
 }
 
-int* SensorsCheckTask::getLightLevel() {
+int SensorsCheckTask::getLightLevel() {
   return currLight;
 }
 
-bool* SensorsCheckTask::isSomeoneInRoom() {
+bool SensorsCheckTask::isSomeoneInRoom() {
   return someone;
 }
 
 void SensorsCheckTask::init(int period) {
   this->period = period;
-  *currLight = 0;
-  *someone = false;
-  lastDetection = 0;
+  someone = false;
+  lastDetection = currLight = 0;
   pir->calibrate();
+  led->turnOff();
 }
 
 void SensorsCheckTask::tick() {
-  *currLight = lightSens->measureLightLevel();
+  currLight = lightSens->measureLightLevel();
   if (!pir->isMovementDetected()){
+    Serial.println("not detected");
     if(led->isOn() && lastDetection > TIMEOUT){
       led->turnOff();
     }
     lastDetection += period;
-  } else if (led->isOff()) {
+  } else {
     lastDetection = 0;
-    led->turnOn();
+    if (led->isOff()){
+      led->turnOn();
+    }
   }
-  led->isOn() ? *someone  = true : *someone = false;
+  led->isOn() ? someone  = true : someone = false;
 }

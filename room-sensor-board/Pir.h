@@ -6,7 +6,7 @@
 #define CALIBRATION_TIME 10
 
 class Pir {
-  int pirPin;
+  int pin;
 
   public:
     Pir(int pirPin);

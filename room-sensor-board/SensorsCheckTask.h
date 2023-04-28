@@ -8,24 +8,22 @@
 #define TIMEOUT 2000 //msec
 
 class SensorsCheckTask {
-	LightSensor* lightSens;
-  Pir* pir;
-  Led* led;
-  int* currLight;
-  int lastDetection, period;
-  bool* someone;
+	LightSensor* lightSens = nullptr;
+  Pir* pir = nullptr;
+  Led* led = nullptr;
+  int lastDetection, period, currLight;
+  bool someone;
 
 	public:
 		SensorsCheckTask(int pinLs, int pinPir, int pinLed);
     /**
     * returns the current light in percentage from 0 to 100
     */
-		int* getLightLevel();
+		int getLightLevel();
     /**
-    * returns a pointer to the variable that keeps track 
-    * of the presence of someone in the room
+    * returns true if someone is in the room
     */
-    bool* isSomeoneInRoom();
+    bool isSomeoneInRoom();
     void init(int period);
     void tick();
 };
