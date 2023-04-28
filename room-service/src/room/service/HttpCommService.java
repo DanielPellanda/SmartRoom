@@ -78,6 +78,7 @@ public class HttpCommService implements CommService {
 	        	}
 			}
 		}
+		
 		throw new UnknownHostException(exceptionMsg);
 	}
 }

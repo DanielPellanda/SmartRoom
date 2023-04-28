@@ -42,7 +42,7 @@ class Database {
 		}
 		
 		final String[] parameters = input.get().split(";");
-		if (parameters.length <= 2) {
+		if (parameters.length < 2) {
 			final String response = "<h1>Error 400</h1><br/>Bad request. Not enough parameters.";
 			return new HttpResponse(400, response.length(), response);
 		}
