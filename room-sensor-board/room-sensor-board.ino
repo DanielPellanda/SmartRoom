@@ -12,7 +12,7 @@ void setup(){
   sensorsTask = new SensorsCheckTask(LIGHT_PIN, PIR_PIN, LED_PIN);
   commTask = new HttpCommTask();
 
-  sensorsTask->init(BASE_PERIOD);
+  sensorsTask->init();
   commTask->init();
   Serial.println("Setup done");
 }

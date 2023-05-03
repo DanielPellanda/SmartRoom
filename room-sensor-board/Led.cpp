@@ -19,11 +19,15 @@ int Led::getPin() {
 }
 
 void Led::turnOn() {
-  state = ON;
-  digitalWrite(pin, HIGH);
+  if(state == OFF){
+    state = ON;
+    digitalWrite(pin, HIGH);
+  }
 }
 
 void Led::turnOff() {
-  state = OFF;
-  digitalWrite(pin, LOW);
+  if(state == ON){
+    state = OFF;
+    digitalWrite(pin, LOW);
+  }
 }

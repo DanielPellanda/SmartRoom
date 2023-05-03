@@ -5,13 +5,11 @@
 #include "Pir.h"
 #include "Led.h"
 
-#define TIMEOUT 2000 //msec
-
 class SensorsCheckTask {
 	LightSensor* lightSens = nullptr;
   Pir* pir = nullptr;
   Led* led = nullptr;
-  int lastDetection, period, currLight;
+  int currLight;
   bool someone;
 
 	public:
@@ -24,7 +22,7 @@ class SensorsCheckTask {
     * returns true if someone is in the room
     */
     bool isSomeoneInRoom();
-    void init(int period);
+    void init();
     void tick();
 };
 

@@ -14,27 +14,15 @@ bool SensorsCheckTask::isSomeoneInRoom() {
   return someone;
 }
 
-void SensorsCheckTask::init(int period) {
-  this->period = period;
+void SensorsCheckTask::init() {
   someone = false;
-  lastDetection = currLight = 0;
+  currLight = 0;
   pir->calibrate();
   led->turnOff();
 }
 
 void SensorsCheckTask::tick() {
   currLight = lightSens->measureLightLevel();
-  if (!pir->isMovementDetected()){
-    Serial.println("not detected");
-    if(led->isOn() && lastDetection > TIMEOUT){
-      led->turnOff();
-    }
-    lastDetection += period;
-  } else {
-    lastDetection = 0;
-    if (led->isOff()){
-      led->turnOn();
-    }
-  }
+  pir->isMovementDetected() ? led->turnOn() : led->turnOff();
   led->isOn() ? someone  = true : someone = false;
 }

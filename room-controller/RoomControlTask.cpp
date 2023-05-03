@@ -50,10 +50,10 @@ void RoomControlTask:: rollerBlindsRules(){
     }
   } else{
     if(*currAngle == UNROLLED && sens->isSomeoneInRoom()){
-      Serial.println(*currAngle);
       angle(ROLLED_UP);
     }
   }
+  angle(*currAngle);
 }
 
 void RoomControlTask::tick() {
