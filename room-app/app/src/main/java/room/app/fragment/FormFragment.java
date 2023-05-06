@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import room.app.Config;
-import room.app.R;
 import room.app.activity.MainActivity;
 import room.app.bluetooth.BluetoothConnector;
 import room.app.databinding.FormFragmentBinding;
@@ -231,7 +230,7 @@ public class FormFragment extends Fragment {
      * @param nextStatus the next status to apply.
      */
     private void updateStatus(final ControlStatus nextStatus) {
-        binding.labelStatus.setText(nextStatus.name().toUpperCase());
+        binding.textStatus.setText(nextStatus.name().toUpperCase());
         switch(nextStatus) {
             case AUTO:
                 binding.buttonApply.setEnabled(true);

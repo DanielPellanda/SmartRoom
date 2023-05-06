@@ -127,7 +127,7 @@ class Database {
 	 * @return an HttpResponse to send to the dashboard for periodic update.
 	 */
 	public HttpResponse getDashboardData() {
-		final String response = this.status + ";" + this.hours + ";" + this.mins + ";" + (this.lightOn ? "1" : "0") + ";" + this.rollerBlind;
+		final String response = this.status + ";" + this.hours + ";" + this.mins + ";" + (this.lightOn ? "1" : "0") + ";" + this.rollerBlind + ";" + this.lightLevel;
 		return new HttpResponse(200, response.length(), response);
 	}
 
